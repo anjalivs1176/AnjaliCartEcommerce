@@ -1,5 +1,6 @@
 # ---- Base image ----
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
+
 
 # ---- App directory inside container ----
 WORKDIR /app
