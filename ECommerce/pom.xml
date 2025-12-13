@@ -18,7 +18,7 @@
     <description>Ecommerce website</description>
 
     <properties>
-        <java.version>18</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <!-- Ensures Maven downloads everything from the correct repo -->
@@ -138,7 +138,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>18</source>
+                    <source>17</source>
                 </configuration>
             </plugin>
 
