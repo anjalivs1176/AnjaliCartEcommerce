@@ -1,0 +1,14 @@
+# backend
+/target
+*.log
+.env
+
+# frontend
+/node_modules
+/build
+/dist
+
+# ide
+.idea
+.vscode
+*.iml
