@@ -1,15 +1,11 @@
-# ---- Base image ----
-FROM eclipse-temurin:17-jdk-jammy
-
-
-# ---- App directory inside container ----
+FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /app
+COPY . .
+RUN mvn -q -DskipTests package
 
-# ---- Copy jar (Render will build it) ----
-COPY target/*.jar app.jar
-
-# ---- Expose Spring Boot port ----
+# Run Stage
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-
-# ---- Run app ----
 ENTRYPOINT ["java", "-jar", "app.jar"]
