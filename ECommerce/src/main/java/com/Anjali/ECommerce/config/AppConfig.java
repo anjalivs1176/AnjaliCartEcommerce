@@ -1,6 +1,7 @@
 package com.Anjali.ECommerce.config;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,74 +15,66 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-
-import java.util.List;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 public class AppConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            CorsConfigurationSource corsConfigurationSource
-    ) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .sessionManagement(session
-                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .cors(cors -> {
+                })
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                // 🔓 CORS preflight
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // 🔓 AUTH (OTP, login, signup)
+                // Public Routes
                 .requestMatchers("/api/auth/**").permitAll()
-                // 🔓 PUBLIC APIs
                 .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                // Public GET routes for customer browsing
+                .requestMatchers(HttpMethod.GET, "/api/home/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/deals/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                .requestMatchers("/api/deals/**").permitAll()
-                // 🔐 ADMIN
-                .requestMatchers("/api/admin/**").authenticated()
-                // 🔐 EVERYTHING ELSE
+                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/home-categories/**").permitAll()
+                // Admin login public
+                .requestMatchers("/api/admin/login").permitAll()
+                // Protected routes
+                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
                 )
-                .addFilterBefore(
-                        new JwtTokenValidator(),
-                        BasicAuthenticationFilter.class
-                );
+                .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        return request -> {
-            CorsConfiguration cfg = new CorsConfiguration();
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration cfg = new CorsConfiguration();
 
-            cfg.setAllowedOriginPatterns(List.of(
-                    "http://localhost:3000",
-                    "https://anjali-cart.netlify.app"
-            ));
+        cfg.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://anjalicart.netlify.app",
+                "https://anjalicart.onrender.com"
+        ));
 
-            cfg.setAllowedMethods(List.of(
-                    "GET", "POST", "PUT", "DELETE", "OPTIONS"
-            ));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
+        cfg.setAllowedHeaders(List.of("*"));
+        cfg.setAllowCredentials(true);
+        cfg.setExposedHeaders(List.of("Authorization"));
+        cfg.setMaxAge(3600L);
 
-            cfg.setAllowedHeaders(List.of("*"));
-            cfg.setAllowCredentials(true);
-            cfg.setExposedHeaders(List.of("Authorization"));
-            cfg.setMaxAge(3600L);
-
-            return cfg;
-        };
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", cfg);
+        return source;
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 

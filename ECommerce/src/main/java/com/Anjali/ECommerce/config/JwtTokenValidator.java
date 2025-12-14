@@ -3,81 +3,66 @@ package com.Anjali.ECommerce.config;
 import java.io.IOException;
 import java.util.List;
 
-import javax.crypto.SecretKey;
-
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@Component
 public class JwtTokenValidator extends OncePerRequestFilter {
 
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        String path = request.getRequestURI();
+        String path = request.getServletPath();
 
-        // ✅ CORS preflight
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            return true;
+        // Allow auth endpoints
+        if (path.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        // ✅ PUBLIC APIs (ONLY REAL PATHS)
-        return path.startsWith("/api/auth")
-                || path.startsWith("/api/public")
-                || path.startsWith("/api/products")
-                || path.startsWith("/api/categories")
-                || path.startsWith("/api/deals");
-    }
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+        String token = authHeader.substring(7);
 
-        String jwt = request.getHeader("Authorization");
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtSecret.getBytes())
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        if (jwt != null && jwt.startsWith("Bearer ")) {
-            try {
-                jwt = jwt.substring(7);
+            String email = claims.get("email", String.class);
+            String role = claims.get("authorities", String.class);
 
-                SecretKey key
-                        = Keys.hmacShaKeyFor(JWT_CONSTANT.SECRET_KEY.getBytes());
+            List<SimpleGrantedAuthority> authorities
+                    = List.of(new SimpleGrantedAuthority(role));
 
-                Claims claims = Jwts.parserBuilder()
-                        .setSigningKey(key)
-                        .build()
-                        .parseClaimsJws(jwt)
-                        .getBody();
+            UsernamePasswordAuthenticationToken authentication
+                    = new UsernamePasswordAuthenticationToken(email, null, authorities);
 
-                String email = claims.get("email", String.class);
-                String authorities = claims.get("authorities", String.class);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                List<GrantedAuthority> auths
-                        = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
-
-                Authentication authentication
-                        = new UsernamePasswordAuthenticationToken(email, null, auths);
-
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
-
-            } catch (Exception e) {
-                throw new BadCredentialsException("Invalid JWT Token");
-            }
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
         }
 
         filterChain.doFilter(request, response);
