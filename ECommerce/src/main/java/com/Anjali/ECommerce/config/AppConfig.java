@@ -17,6 +17,84 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+// @Configuration
+// @EnableWebSecurity
+// public class AppConfig {
+
+//     @Bean
+//     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+//         http
+//                 .csrf(csrf -> csrf.disable())
+//                 .cors(cors -> {
+//                 })
+//                 .sessionManagement(session
+//                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                 )
+//                 .authorizeHttpRequests(auth -> auth
+//                 // ---------- PREFLIGHT ----------
+//                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+//                 // ---------- AUTH / OTP (PUBLIC) ----------
+//                 .requestMatchers("/api/auth/**").permitAll()
+//                 // ---------- SELLER AUTH (PUBLIC) ----------
+//                 .requestMatchers(
+//                         "/api/seller/login",
+//                         "/api/seller/send-otp",
+//                         "/api/seller/verify-otp"
+//                 ).permitAll()
+//                 // ---------- PUBLIC GET APIs ----------
+//                 .requestMatchers(HttpMethod.GET,
+//                         "/api/categories/**",
+//                         "/api/deals/**",
+//                         "/api/products/**",
+//                         "/api/public/**"
+//                 ).permitAll()
+//                 // ---------- ADMIN AUTH ----------
+//                 .requestMatchers("/api/admin/login").permitAll()
+//                 // ---------- ADMIN PROTECTED ----------
+//                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+//                 // ---------- SELLER PROTECTED ----------
+//                 .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
+//                 // ---------- EVERYTHING ELSE ----------
+//                 .anyRequest().authenticated()
+//                 )
+//                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
+
+//         return http.build();
+//     }
+
+//     @Bean
+//     CorsConfigurationSource corsConfigurationSource() {
+//         CorsConfiguration cfg = new CorsConfiguration();
+
+//         cfg.setAllowedOrigins(List.of(
+//                 "http://localhost:3000",
+//                 "https://anjali-cart.netlify.app"
+//         ));
+
+//         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+//         cfg.setAllowedHeaders(List.of("*"));
+//         cfg.setAllowCredentials(true);
+//         cfg.setExposedHeaders(List.of("Authorization"));
+//         cfg.setMaxAge(3600L);
+
+//         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//         source.registerCorsConfiguration("/**", cfg);
+//         return source;
+//     }
+
+//     @Bean
+//     PasswordEncoder passwordEncoder() {
+//         return new BCryptPasswordEncoder();
+//     }
+
+//     @Bean
+//     public RestTemplate restTemplate() {
+//         return new RestTemplate();
+//     }
+// }
+
+
 @Configuration
 @EnableWebSecurity
 public class AppConfig {
@@ -25,40 +103,37 @@ public class AppConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> {
-                })
-                .sessionManagement(session
-                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authorizeHttpRequests(auth -> auth
-                // ---------- PREFLIGHT ----------
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> {})
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(auth -> auth
+
+                // preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // ---------- AUTH / OTP (PUBLIC) ----------
+
+                // auth
                 .requestMatchers("/api/auth/**").permitAll()
-                // ---------- SELLER AUTH (PUBLIC) ----------
-                .requestMatchers(
-                        "/api/seller/login",
-                        "/api/seller/send-otp",
-                        "/api/seller/verify-otp"
-                ).permitAll()
-                // ---------- PUBLIC GET APIs ----------
+
+                // public GET
                 .requestMatchers(HttpMethod.GET,
+                        "/api/home/**",
                         "/api/categories/**",
                         "/api/deals/**",
-                        "/api/products/**",
-                        "/api/public/**"
+                        "/api/products/**"
                 ).permitAll()
-                // ---------- ADMIN AUTH ----------
-                .requestMatchers("/api/admin/login").permitAll()
-                // ---------- ADMIN PROTECTED ----------
+
+                // admin
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                // ---------- SELLER PROTECTED ----------
+
+                // seller
                 .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
-                // ---------- EVERYTHING ELSE ----------
+
+                // everything else
                 .anyRequest().authenticated()
-                )
-                .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
+            )
+            .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
 
         return http.build();
     }
@@ -72,11 +147,10 @@ public class AppConfig {
                 "https://anjali-cart.netlify.app"
         ));
 
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
         cfg.setExposedHeaders(List.of("Authorization"));
-        cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
@@ -86,10 +160,5 @@ public class AppConfig {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 }
