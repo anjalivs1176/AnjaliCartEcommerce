@@ -18,11 +18,11 @@ import { useAppDispatch, useAppSelector } from "../../../state/store";
 import {
   fetchSellerProfile,
   updateSellerProfile,
-} from "../../../state/seller/sellerProfileSlice";
+} from "../../../state/seller/sellerSlice";
 
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { seller, loading } = useAppSelector((state) => state.sellerProfile);
+  const { seller, loading } = useAppSelector((state) => state.seller);
 
   const [open, setOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);

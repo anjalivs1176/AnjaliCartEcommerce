@@ -3,7 +3,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 import sellerReducer from "./seller/sellerSlice";
 import authReducer from "./AuthSlice";
-import sellerProfileReducer from "./seller/sellerProfileSlice";
+//import sellerProfileReducer from "./seller/sellerProfileSlice";
 import sellerProductReducer from "./seller/sellerProductSlice";
 import productSliceReducer from "./customer/ProductSlice";
 import sellerOrderReducer from "./seller/sellerOrdersSlice";
@@ -16,7 +16,7 @@ export const store = configureStore({
   reducer: {
     seller: sellerReducer,
     auth: authReducer,
-    sellerProfile: sellerProfileReducer,
+    //sellerProfile: sellerProfileReducer,
     sellerProduct:sellerProductReducer,
     product:productSliceReducer,
     sellerOrders: sellerOrderReducer,

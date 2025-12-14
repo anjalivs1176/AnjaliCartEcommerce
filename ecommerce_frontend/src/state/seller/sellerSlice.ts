@@ -1,69 +1,4 @@
-// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import api  from "../../config/api";
-
-// interface SellerState {
-//   seller: any;
-//   loading: boolean;
-//   error: string | null;
-//   token: string | null;
-// }
-
-// const initialState: SellerState = {
-//   seller: null,
-//   loading: false,
-//   error: null,
-//   token: localStorage.getItem("token") || null,
-// };
-
-// export const fetchSellerProfile = createAsyncThunk(
-//   "seller/fetchSellerProfile",
-//   async (jwt: string, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/seller/profile", {
-//         headers: { Authorization: `Bearer ${jwt}` },
-//       });
-//       return response.data;
-//     } catch (error: any) {
-//       return rejectWithValue(error.response?.data || "Failed to fetch seller");
-//     }
-//   }
-// );
-
-// const sellerSlice = createSlice({
-//   name: "seller",
-//   initialState,
-//   reducers: {
-//     logoutSeller: (state) => {
-//       state.token = null;
-//       state.seller = null;
-//       localStorage.removeItem("token");
-//     },
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(fetchSellerProfile.pending, (state) => {
-//         state.loading = true;
-//       })
-//       .addCase(fetchSellerProfile.fulfilled, (state, action) => {
-//         state.loading = false;
-//         state.seller = action.payload;
-//       })
-//       .addCase(fetchSellerProfile.rejected, (state, action) => {
-//         state.loading = false;
-//         state.error = action.payload as string;
-//       });
-//   },
-// });
-
-// export const { logoutSeller } = sellerSlice.actions;
-
-// export default sellerSlice.reducer;
-
-
-
-
-
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../config/api";
 
 interface SellerState {
@@ -78,6 +13,7 @@ const initialState: SellerState = {
   error: null,
 };
 
+// ✅ FETCH SELLER PROFILE (NO TOKEN ARG)
 export const fetchSellerProfile = createAsyncThunk(
   "seller/fetchSellerProfile",
   async (_, { rejectWithValue }) => {
@@ -92,11 +28,26 @@ export const fetchSellerProfile = createAsyncThunk(
   }
 );
 
+// ✅ UPDATE SELLER PROFILE (NO /api/api BUG)
+export const updateSellerProfile = createAsyncThunk(
+  "seller/updateSellerProfile",
+  async (updateData: any, { rejectWithValue }) => {
+    try {
+      const response = await api.patch("/seller/profile/update", updateData);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update profile"
+      );
+    }
+  }
+);
+
 const sellerSlice = createSlice({
   name: "seller",
   initialState,
   reducers: {
-    logoutSeller: (state) => {
+    logoutSeller(state) {
       state.seller = null;
       localStorage.removeItem("token");
       localStorage.removeItem("role");
@@ -106,6 +57,7 @@ const sellerSlice = createSlice({
     builder
       .addCase(fetchSellerProfile.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchSellerProfile.fulfilled, (state, action) => {
         state.loading = false;
@@ -114,6 +66,9 @@ const sellerSlice = createSlice({
       .addCase(fetchSellerProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(updateSellerProfile.fulfilled, (state, action) => {
+        state.seller = action.payload;
       });
   },
 });
