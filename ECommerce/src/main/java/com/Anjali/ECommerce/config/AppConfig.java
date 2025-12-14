@@ -34,25 +34,26 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ================= PUBLIC APIs =================
+                // ✅ ALLOW CORS PREFLIGHT
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // ✅ PUBLIC APIs
                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                 .requestMatchers("/api/home").permitAll()
-                .requestMatchers("/api/home-category").permitAll() // 🔥 THIS WAS MISSING
+                .requestMatchers("/api/home-category").permitAll()
                 .requestMatchers("/api/deals/**").permitAll()
                 .requestMatchers("/api/categories/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-                // ================= SELLER AUTH =================
+                // ✅ SELLER AUTH
                 .requestMatchers(
                         "/api/seller/login",
                         "/api/seller/verify",
                         "/api/seller/login-signup-otp"
                 ).permitAll()
-                // ================= ADMIN =================
+                // 🔐 ADMIN
                 .requestMatchers("/api/admin/**").authenticated()
-                // ================= ALL OTHER APIs =================
+                // 🔐 EVERYTHING ELSE
                 .requestMatchers("/api/**").authenticated()
-                // ================= EVERYTHING ELSE =================
                 .anyRequest().permitAll()
                 )
                 .addFilterBefore(
@@ -68,26 +69,18 @@ public class AppConfig {
         return request -> {
             CorsConfiguration cfg = new CorsConfiguration();
 
-            // ✅ Allow frontend domains
             cfg.setAllowedOriginPatterns(List.of(
                     "http://localhost:3000",
-                    "https://anjalicart.netlify.app"
+                    "https://anjali-cart.netlify.app"
             ));
 
-            // ✅ Allow HTTP methods
             cfg.setAllowedMethods(List.of(
                     "GET", "POST", "PUT", "DELETE", "OPTIONS"
             ));
 
-            // ✅ Allow all headers
             cfg.setAllowedHeaders(List.of("*"));
-
-            // ✅ Needed for JWT
             cfg.setAllowCredentials(true);
-
-            // ✅ Expose auth header
             cfg.setExposedHeaders(List.of("Authorization"));
-
             cfg.setMaxAge(3600L);
 
             return cfg;
@@ -104,3 +97,9 @@ public class AppConfig {
         return new RestTemplate();
     }
 }
+
+                        
+                                                                    
+                       
+         
+                                             
