@@ -23,6 +23,34 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtTokenValidator extends OncePerRequestFilter {
 
+    /**
+     * 🔥 This is the KEY method. Spring Security will COMPLETELY SKIP this
+     * filter for public APIs and OPTIONS (CORS preflight).
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+
+        String path = request.getRequestURI();
+
+        // ✅ Always skip CORS preflight
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
+        // ✅ Skip JWT for public APIs
+        return path.startsWith("/api/auth")
+                || path.startsWith("/api/public")
+                || path.startsWith("/api/home-category")
+                || path.startsWith("/api/deals")
+                || path.startsWith("/api/categories")
+                || path.startsWith("/api/seller/login")
+                || path.startsWith("/api/seller/verify")
+                || path.startsWith("/api/seller/login-signup-otp");
+    }
+
+    /**
+     * 🔐 JWT validation ONLY for protected APIs
+     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -30,29 +58,12 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-
-        // ✅ SKIP JWT VALIDATION FOR PUBLIC APIs
-        if (path.startsWith("/api/auth")
-                || path.startsWith("/api/public")
-                || path.startsWith("/api/home-category")
-                || path.startsWith("/api/deals")
-                || path.startsWith("/api/categories")
-                || path.startsWith("/api/seller/login")
-                || path.startsWith("/api/seller/verify")
-                || path.startsWith("/api/seller/login-signup-otp")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // 🔐 JWT validation for protected APIs
         String jwt = request.getHeader("Authorization");
 
         if (jwt != null && jwt.startsWith("Bearer ")) {
-
-            jwt = jwt.substring(7);
-
             try {
+                jwt = jwt.substring(7);
+
                 SecretKey key
                         = Keys.hmacShaKeyFor(JWT_CONSTANT.SECRET_KEY.getBytes());
 
