@@ -30,10 +30,14 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
+    // 🔹 Utility: normalize empty strings → null
+    private String normalize(String value) {
+        return (value == null || value.trim().isEmpty()) ? null : value;
+    }
+
     @Override
     public Product createProduct(CreateProductRequest req, Seller seller) {
 
-        //Validate categories 
         Category category1 = categoryRepository.findByCategoryId(req.getCategory());
         Category category2 = categoryRepository.findByCategoryId(req.getCategory2());
         Category category3 = categoryRepository.findByCategoryId(req.getCategory3());
@@ -48,27 +52,22 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Invalid Level 3 category: " + req.getCategory3());
         }
 
-        // Validate category relationships
-        // Level 2 must belong to Level 1
         if (category2.getParentCategory() == null
                 || !category2.getParentCategory().getId().equals(category1.getId())) {
             throw new RuntimeException("Invalid category hierarchy between Level 1 and Level 2.");
         }
 
-        // Level 3 must belong to Level 2
         if (category3.getParentCategory() == null
                 || !category3.getParentCategory().getId().equals(category2.getId())) {
             throw new RuntimeException("Invalid category hierarchy between Level 2 and Level 3.");
         }
 
-        // Calculate discount
         int discountPercentage
                 = calculateDiscountpercentage(req.getMrpPrice(), req.getSellingPrice());
 
-        //Create product
         Product product = new Product();
         product.setSeller(seller);
-        product.setCategory(category3);  // level 3 final category
+        product.setCategory(category3);
         product.setDescription(req.getDescription());
         product.setCreatedAt(LocalDateTime.now());
         product.setTitle(req.getTitle());
@@ -87,8 +86,7 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Actual Price must be greater than Zero...");
         }
         double discount = mrpPrice - sellingPrice;
-        double discountPercentage = (discount / mrpPrice) * 100;
-        return (int) discountPercentage;
+        return (int) ((discount / mrpPrice) * 100);
     }
 
     public Product updateProduct(Long id, UpdateProductRequest req) throws Exception {
@@ -102,7 +100,6 @@ public class ProductServiceImpl implements ProductService {
         product.setImages(req.getImages());
         product.setSizes(req.getSize());
 
-        // Convert category IDs to real Category objects
         Category c3 = categoryRepository.findByCategoryId(req.getCategory3());
         product.setCategory(c3);
 
@@ -123,8 +120,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product findProductById(Long productId) throws ProductException {
-        return productRepository.findById(productId).orElseThrow(()
-                -> new ProductException("Product not found with Id: " + productId));
+        return productRepository.findById(productId)
+                .orElseThrow(()
+                        -> new ProductException("Product not found with Id: " + productId));
     }
 
     @Override
@@ -145,6 +143,14 @@ public class ProductServiceImpl implements ProductService {
             String stock,
             Integer pageNumber) {
 
+        // 🔹 Normalize all string params (KEY FIX)
+        category = normalize(category);
+        brand = normalize(brand);
+        color = normalize(color);
+        size = normalize(size);
+        sort = normalize(sort);
+        stock = normalize(stock);
+
         Specification<Product> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -152,10 +158,10 @@ public class ProductServiceImpl implements ProductService {
                 Join<Product, Category> categoryJoin = root.join("category");
                 predicates.add(cb.equal(categoryJoin.get("categoryId"), category));
             }
-            if (color != null && !color.isEmpty()) {
+            if (color != null) {
                 predicates.add(cb.equal(root.get("color"), color));
             }
-            if (size != null && !size.isEmpty()) {
+            if (size != null) {
                 predicates.add(cb.equal(root.get("sizes"), size));
             }
             if (minPrice != null) {
@@ -173,12 +179,14 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable;
 
-        if (sort != null && !sort.isEmpty()) {
+        if (sort != null) {
             pageable = switch (sort) {
                 case "price_low" ->
-                    PageRequest.of(pageNumber != null ? pageNumber : 0, 10, Sort.by("sellingPrice").ascending());
+                    PageRequest.of(pageNumber != null ? pageNumber : 0, 10,
+                    Sort.by("sellingPrice").ascending());
                 case "price_high" ->
-                    PageRequest.of(pageNumber != null ? pageNumber : 0, 10, Sort.by("sellingPrice").descending());
+                    PageRequest.of(pageNumber != null ? pageNumber : 0, 10,
+                    Sort.by("sellingPrice").descending());
                 default ->
                     PageRequest.of(pageNumber != null ? pageNumber : 0, 10);
             };
