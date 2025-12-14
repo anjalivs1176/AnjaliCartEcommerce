@@ -32,14 +32,19 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // ✅ Allow public auth routes
-        if (path.startsWith("/api/auth/") || path.startsWith("/api/public/")) {
+        // ✅ Allow public routes
+        if (
+                path.startsWith("/api/auth/")
+                || path.startsWith("/api/public/")
+                || path.startsWith("/actuator/")
+        ) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
 
+        // ✅ If no token, let Spring Security decide (will block protected APIs)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -55,13 +60,11 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
             String email = claims.getSubject();
 
-            @SuppressWarnings("unchecked")
-            List<String> roles = claims.get("authorities", List.class);
+            // 🔥 FIXED PART — authorities is STRING in your JWT
+            String role = claims.get("authorities", String.class);
 
             List<SimpleGrantedAuthority> authorities =
-                    roles.stream()
-                         .map(SimpleGrantedAuthority::new)
-                         .toList();
+                    List.of(new SimpleGrantedAuthority(role));
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
@@ -73,6 +76,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
+            // ❌ Invalid token → block request
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
