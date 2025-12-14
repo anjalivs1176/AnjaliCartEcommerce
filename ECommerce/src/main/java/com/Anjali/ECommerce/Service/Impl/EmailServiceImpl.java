@@ -12,10 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.Anjali.ECommerce.Service.EmailService;
+
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    @Value("${BREVO_API_KEY}")
+    @Value("${brevo.api.key}")
     private String apiKey;
 
     @Value("${mail.from}")
