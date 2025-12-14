@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AddReviewBody } from "../../type/review";
 import { ReviewResponse } from "../../type/review";
 
-import { api } from "../../config/api"
+import api  from "../../config/api"
 
 
 export interface Review {

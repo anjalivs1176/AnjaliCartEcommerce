@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { api } from "../../config/api";
+import api from "../../config/api";
 
 interface Order {
   id: number;
@@ -27,7 +27,7 @@ export const fetchSellerOrders = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get("/api/seller/orders", {
+      const res = await api.get("/seller/orders", {
         headers: { Authorization: token },
       });
       return res.data;
@@ -46,7 +46,7 @@ export const updateSellerOrderStatus = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const res = await api.patch(
-        `/api/seller/orders/${orderId}/status/${status}`,
+        `/seller/orders/${orderId}/status/${status}`,
         {},
         { headers: { Authorization: token } }
       );

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { api } from "../../config/api";
+import api from "../../config/api";
 
 interface WishlistState {
   items: any[];

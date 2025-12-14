@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { api } from "../../config/api";
+import api from "../../config/api";
 
 interface CartState {
   cart: any | null;
@@ -18,7 +18,7 @@ export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get("/api/cart");
+      const res = await api.get("/cart");
       return res.data;
     } catch (err: any) {
       return rejectWithValue(err.message);
@@ -32,7 +32,7 @@ export const addToCart = createAsyncThunk(
     { productId, quantity = 1 }: { productId: number; quantity?: number },
     { dispatch }
   ) => {
-    await api.post("/api/cart/add", { productId, quantity });
+    await api.post("/cart/add", { productId, quantity });
     dispatch(fetchCart());
   }
 );
@@ -42,7 +42,7 @@ export const addToCart = createAsyncThunk(
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async (cartItemId: number, { dispatch }) => {
-    await api.delete(`/api/cart/remove/${cartItemId}`);
+    await api.delete(`/cart/remove/${cartItemId}`);
     dispatch(fetchCart());
   }
 );
@@ -54,7 +54,7 @@ export const updateCartQuantity = createAsyncThunk(
     { cartItemId, quantity }: { cartItemId: number; quantity: number },
     { dispatch }
   ) => {
-    await api.put(`/api/cart/update/${cartItemId}`, { quantity });
+    await api.put(`/cart/update/${cartItemId}`, { quantity });
     dispatch(fetchCart());
   }
 );

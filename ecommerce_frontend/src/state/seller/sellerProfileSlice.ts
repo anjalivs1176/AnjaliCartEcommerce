@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { api } from "../../config/api";
+import api from "../../config/api";
 
 export const fetchSellerProfile = createAsyncThunk(
   "seller/fetchSellerProfile",
   async (jwt: string, { rejectWithValue }) => {
     try {
-      const response = await api.get("/api/seller/profile", {
+      const response = await api.get("/seller/profile", {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },

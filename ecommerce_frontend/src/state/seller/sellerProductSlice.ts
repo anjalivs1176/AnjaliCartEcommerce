@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { api } from "../../config/api";
+import api from "../../config/api";
 import { Product } from "../../type/productType";
 
 export const fetchSellerProducts = createAsyncThunk<Product[]>(
@@ -7,7 +7,7 @@ export const fetchSellerProducts = createAsyncThunk<Product[]>(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-const response = await api.get("/api/sellers/products", {
+const response = await api.get("/sellers/products", {
   headers: {
     Authorization: `Bearer ${token}`
   }
@@ -25,7 +25,7 @@ export const createProduct = createAsyncThunk(
   async ({ request }: any, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-const response = await api.post("/api/sellers/products", request, {
+const response = await api.post("/sellers/products", request, {
   headers: {
     Authorization: `Bearer ${token}`
   }
@@ -43,7 +43,7 @@ export const updateProduct = createAsyncThunk(
   async ({ productId, request }: any, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-const response = await api.put(`/api/sellers/products/${productId}`, request, {
+const response = await api.put(`/sellers/products/${productId}`, request, {
   headers: {
     Authorization: `Bearer ${token}`
   }
@@ -60,7 +60,7 @@ export const deleteProduct = createAsyncThunk(
   async (productId: number, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-await api.delete(`/api/sellers/products/${productId}`, {
+await api.delete(`/sellers/products/${productId}`, {
   headers: {
     Authorization: `Bearer ${token}`
   }
@@ -79,7 +79,7 @@ export const toggleStock = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
 const response = await api.put(
-  `/api/sellers/products/${productId}/stock`,
+  `/sellers/products/${productId}/stock`,
   { stockStatus },
   {
     headers: {
