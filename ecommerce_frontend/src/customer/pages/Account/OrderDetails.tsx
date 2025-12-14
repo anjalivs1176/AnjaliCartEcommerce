@@ -37,7 +37,7 @@ const OrderDetails = () => {
 
   useEffect(() => {
     fetchOrder();
-  }, []);
+  }, [fetchOrder]);
 
   if (loading) return <p>Loading order details...</p>;
   if (!order) return <p>Order not found.</p>;
