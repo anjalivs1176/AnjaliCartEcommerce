@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import OrderStepper from "./OrderStepper";
 import axios from "axios";
 import { Payments } from "@mui/icons-material";
+import api from "../../../config/api";
 
 const OrderDetails = () => {
   const { orderId } = useParams();
@@ -17,8 +18,8 @@ const OrderDetails = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(
-        `http://localhost:8080/api/orders/${orderId}`,
+      const res = await api.get(
+        `/orders/${orderId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -56,8 +57,8 @@ const OrderDetails = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.put(
-        `http://localhost:8080/api/orders/${order.id}/cancel`,
+      await api.put(
+        `/orders/${order.id}/cancel`,
         {},
         {
           headers: {

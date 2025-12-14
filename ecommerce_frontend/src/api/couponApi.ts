@@ -1,13 +1,6 @@
+import api from "../config/api";
+
 export const getActiveCoupons = async () => {
-  const token = localStorage.getItem("token") || "";
-
-  const res = await fetch("http://localhost:8080/api/coupons/active", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    }
-  });
-
-  return res.json();
+  const { data } = await api.get("/coupons/active");
+  return data;
 };

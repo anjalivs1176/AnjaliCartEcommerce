@@ -1,11 +1,13 @@
-import axios from "axios"
 
-const api="http://localhost:8080/api/products"
-export const fetchProducts = async()=>{
-    try{
-        const response=await axios.get(api)
-        console.log("response ",response)
-    }catch(error){
-        console.error(error)
-    }
-}
+import api from "../config/api";
+
+export const fetchProducts = async () => {
+  try {
+    const response = await api.get("/products");
+    console.log("response ", response);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

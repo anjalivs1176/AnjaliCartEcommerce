@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import api from '../../../config/api';
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ const LoginForm = () => {
     setErrorMsg("");
 
     try {
-      await axios.post("http://localhost:8080/api/auth/send/login-signup-otp", {
+      await api.post("/auth/send/login-signup-otp", {
         email: "signin_" + email,
         role: "ROLE_CUSTOMER"
       });
@@ -27,7 +28,7 @@ const LoginForm = () => {
   };
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/signing", {
+      const res = await api.post("/auth/signing", {
         email,
         otp,
         role: "ROLE_CUSTOMER"

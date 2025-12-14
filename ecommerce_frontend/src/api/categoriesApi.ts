@@ -1,7 +1,8 @@
 import axios from "axios";
+import api from "../config/api";
 
 export const categoriesApi = {
   getCategories() {
-    return axios.get("http://localhost:8080/api/categories");
+    return api.get("/categories");
   },
 };

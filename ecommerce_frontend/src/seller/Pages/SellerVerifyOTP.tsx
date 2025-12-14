@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import api from "../../config/api";
 
 const SellerVerifyOTP: React.FC = () => {
   const { email, otp } = useParams<{ email?: string; otp?: string }>();
@@ -31,26 +32,17 @@ const SellerVerifyOTP: React.FC = () => {
       const encodedEmail = encodeURIComponent(email);
       const encodedOtp = encodeURIComponent(otp);
 
-      const url = `http://localhost:8080/api/seller/verify/${encodedEmail}/${encodedOtp}`;
+      await api.patch(
+        `/api/seller/verify/${encodedEmail}/${encodedOtp}`
+      );
 
-      const res = await fetch(url, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const body = await res.json().catch(() => null);
-
-      if (res.ok) {
-        setStatusMessage("Email verified successfully 🎉 Redirecting to login...");
-        setTimeout(() => navigate("/become-seller"), 1500);
-      } else {
-        setError(body?.error || "Verification failed. Please try again.");
-      }
-
+      setStatusMessage("Email verified successfully 🎉 Redirecting to login...");
+      setTimeout(() => navigate("/become-seller"), 1500);
     } catch (err: any) {
-      setError("Network error while verifying OTP");
+      setError(
+        err?.response?.data?.error ||
+          "Verification failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -63,7 +55,7 @@ const SellerVerifyOTP: React.FC = () => {
       </Typography>
 
       <Typography variant="body2" color="textSecondary" gutterBottom>
-        Email: {email}  
+        Email: {email}
         <br />
         OTP: {otp}
       </Typography>

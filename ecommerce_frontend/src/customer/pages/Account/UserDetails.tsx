@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import ProfileFieldCard from '../../../component/ProfileFieldCard'
 import { Divider } from '@mui/material'
-import axios from "axios";
+import api from '../../../config/api';
 import { User } from "../../../type/userType";
 
 const UserDetails = () => {
@@ -14,7 +14,7 @@ const UserDetails = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await axios.get("http://localhost:8080/users/profile", {
+        const res = await api.get("/users/profile", {
           headers: {
             Authorization: `Bearer ${token}`
           }

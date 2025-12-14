@@ -6,11 +6,7 @@ import {
   Add,
   AddShoppingCart,
   FavoriteBorder,
-  LocalShipping,
   Remove,
-  Shield,
-  Wallet,
-  WorkspacePremium,
 } from "@mui/icons-material";
 import SimilarProduct from "./SimilarProduct";
 import ReviewCard from "../Review/ReviewCard";
@@ -20,6 +16,7 @@ import { fetchProductById } from "../../../state/customer/ProductSlice";
 import { fetchReviews, deleteReview } from "../../../state/reviews/reviewSlice";
 import AddReviewForm from "../Review/AddReviewForm";
 import { jwtDecode } from "jwt-decode";
+import api from "../../../config/api";
 
 const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
@@ -39,7 +36,6 @@ const ProductDetails = () => {
   const [isInCart, setIsInCart] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
 
-
   const token = localStorage.getItem("token") || "";
   let currentUserId: number | null = null;
 
@@ -47,16 +43,12 @@ const ProductDetails = () => {
     try {
       const decoded: any = jwtDecode(token);
       currentUserId = decoded.id;
-    } catch (err) {
-      console.log("JWT decode failed:", err);
-    }
+    } catch {}
   }
-
 
   useEffect(() => {
     dispatch(fetchProductById(Number(productId)));
   }, [productId]);
-
 
   useEffect(() => {
     if (product.product?.id) {
@@ -66,118 +58,59 @@ const ProductDetails = () => {
     }
   }, [product.product]);
 
-
   useEffect(() => {
     if (location.hash === "#write-review-section") {
       setTimeout(() => {
-        const el = document.getElementById("write-review-section");
-        el?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document
+          .getElementById("write-review-section")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 300);
     }
   }, [location]);
-
 
   const handleActiveImage = (value: number) => () => {
     setActiveImage(value);
   };
 
-
   const checkIfInCart = async () => {
     try {
-      const token = localStorage.getItem("token") || "";
-
-      const res = await fetch("http://localhost:8080/api/cart", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
+      const { data } = await api.get("/cart");
       const exists = data.cartItems?.some(
         (item: any) => item.product.id === product.product?.id
       );
       setIsInCart(!!exists);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch {}
   };
 
   const handleAddToCart = async () => {
     if (!product.product) return;
 
     try {
-      const token = localStorage.getItem("token") || "";
-
-      const body = {
+      await api.put("/cart/add", {
         productId: product.product.id,
         size: selectedSize,
         quantity,
-      };
-
-      const res = await fetch("http://localhost:8080/api/cart/add", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
       });
-
-      await res.json();
       setIsInCart(true);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch {}
   };
-
 
   const checkWishlist = async () => {
     try {
-      if (!product.product?.id) return;
-
-      const token = localStorage.getItem("token") || "";
-      const res = await fetch("http://localhost:8080/api/wishlist", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await res.json();
+      const { data } = await api.get("/wishlist");
       const exists = data?.products?.some(
         (p: any) => p.id === product.product?.id
       );
-      setIsInWishlist(Boolean(exists));
-    } catch (err) {
-      console.log("Wishlist error:", err);
-    }
+      setIsInWishlist(!!exists);
+    } catch {}
   };
-
 
   const handleToggleWishlist = async () => {
     try {
       if (!product.product?.id) return;
-
-      const token = localStorage.getItem("token") || "";
-
-      const res = await fetch(
-        `http://localhost:8080/api/wishlist/add-product/${product.product.id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      await res.json();
+      await api.post(`/wishlist/add-product/${product.product.id}`);
       setIsInWishlist((prev) => !prev);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch {}
   };
 
   return (
@@ -203,7 +136,6 @@ const ProductDetails = () => {
           </div>
         </section>
 
-
         <section>
           <h1 className="font-bold text-lg text-primary-color">
             {product.product?.seller?.businessDetails.businessName}
@@ -221,28 +153,22 @@ const ProductDetails = () => {
             <span>259 Ratings</span>
           </div>
 
-          <div>
-            <div className="price flex items-center gap-3 mt-5 text-2xl">
-              <span className="font-sans text-gray-800">
-                ₹{product.product?.sellingPrice}
-              </span>
-              <span className="line-through text-gray-400">
-                ₹{product.product?.mrpPrice}
-              </span>
-              <span className="text-primary-color font-semibold">
-                {product.product?.discountPercent}%
-              </span>
-            </div>
-            <p className="text-sm ">
-              Inclusive of all taxes. Free shipping above Rs.1500
-            </p>
+          <div className="price flex items-center gap-3 mt-5 text-2xl">
+            <span className="text-gray-800">
+              ₹{product.product?.sellingPrice}
+            </span>
+            <span className="line-through text-gray-400">
+              ₹{product.product?.mrpPrice}
+            </span>
+            <span className="text-primary-color font-semibold">
+              {product.product?.discountPercent}%
+            </span>
           </div>
-
 
           <div className="mt-7 space-y-2">
             <h1>QUANTITY</h1>
             <div className="flex items-center w-[140px] justify-between">
-              <Button disabled={quantity == 1} onClick={() => setQuantity(quantity - 1)}>
+              <Button disabled={quantity === 1} onClick={() => setQuantity(quantity - 1)}>
                 <Remove />
               </Button>
               <span>{quantity}</span>
@@ -252,8 +178,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
-
-          <div className="mt-5 flex items-center gap-5 ">
+          <div className="mt-5 flex items-center gap-5">
             <Button
               onClick={isInCart ? () => navigate("/cart") : handleAddToCart}
               fullWidth
@@ -275,14 +200,11 @@ const ProductDetails = () => {
             </Button>
           </div>
 
-
           {token && (
             <div id="write-review-section" className="mt-16">
               <AddReviewForm productId={product.product?.id ?? 0} />
-
             </div>
           )}
-
 
           <div className="mt-16">
             <h2 className="text-xl font-semibold mb-6">Reviews</h2>
@@ -310,11 +232,9 @@ const ProductDetails = () => {
                       dispatch(deleteReview({ reviewId: rev.id, token }))
                     }
                   />
-
                   <hr className="border-gray-200 mt-5" />
                 </div>
               ))}
-
             </div>
           </div>
         </section>

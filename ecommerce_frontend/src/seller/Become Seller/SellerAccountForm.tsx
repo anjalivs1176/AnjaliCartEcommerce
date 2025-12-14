@@ -10,6 +10,7 @@ import BecomeSellerFormStep2 from "./BecomeSellerFormStep2";
 import BecomeSellerFormStep3 from "./BecomeSellerFormStep3";
 import BecomeSellerFormStep4 from "./BecomeSellerFormStep4";
 import { useNavigate } from "react-router-dom";
+import api from "../../config/api";
 
 const steps = [
   "Tax Details & Mobile",
@@ -59,27 +60,22 @@ const SellerAccountForm = () => {
     onSubmit: (values) => handleCreateAccount(values)
   });
 
-  const handleCreateAccount = async (values: any) => {
-    try {
-      const res = await fetch("http://localhost:8080/api/seller", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-
-      const data = await res.json();
-      console.log("SELLER CREATED:", data);
-      alert("Seller account created! Check your email for the verification link (it contains the OTP).");
 
 
+const handleCreateAccount = async (values: any) => {
+  try {
+    const { data } = await api.post("/api/seller", values);
 
-    } catch (error) {
-      console.log("Error creating seller:", error);
-      alert("Signup failed");
-    }
-  };
+    console.log("SELLER CREATED:", data);
+    alert(
+      "Seller account created! Check your email for the verification link (it contains the OTP)."
+    );
+  } catch (error: any) {
+    console.error("Error creating seller:", error);
+    alert("Signup failed");
+  }
+};
+
 
 
   const handleStep = (value: number) => {

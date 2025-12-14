@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import UserAddressCard from './UserAddressCard'
 import axios from 'axios'
+import api from '../../../config/api'
 
 const Address = () => {
   const [addresses, setAddresses] = useState<any[]>([])
@@ -8,7 +9,7 @@ const Address = () => {
   const fetchAddresses = async () => {
     try {
       const token = localStorage.getItem('token')
-      const res = await axios.get('http://localhost:8080/api/address', {
+      const res = await api.get('/address', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setAddresses(res.data)

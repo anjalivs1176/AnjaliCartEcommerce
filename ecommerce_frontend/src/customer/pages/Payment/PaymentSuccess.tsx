@@ -1,6 +1,6 @@
-
 import React, { useEffect } from "react";
 import { useSearchParams, useParams, useNavigate } from "react-router-dom";
+import api from "../../../config/api";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -16,26 +16,13 @@ const PaymentSuccess = () => {
 
     const confirmPayment = async () => {
       try {
-        const token = localStorage.getItem("token") || "";
-
-        const res = await fetch(
-          `http://localhost:8080/api/payment/${paymentId}?paymentLinkId=${linkId}`,
-          {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-            },
-          }
+        await api.get(
+          `/api/payment/${paymentId}?paymentLinkId=${linkId}`
         );
 
-        if (res.ok) {
-          console.log("PAYMENT VERIFIED🔥");
-          setTimeout(() => navigate("/account/orders"), 2000);
-        } else {
-          console.log("Payment verification failed");
-        }
+        setTimeout(() => navigate("/account/orders"), 2000);
       } catch (err) {
-        console.log(err);
+        console.log("Payment verification failed", err);
       }
     };
 
@@ -44,7 +31,9 @@ const PaymentSuccess = () => {
 
   return (
     <div className="flex flex-col items-center justify-center h-[70vh] text-center">
-      <h1 className="text-3xl font-bold text-green-600">Payment Successful 🎉</h1>
+      <h1 className="text-3xl font-bold text-green-600">
+        Payment Successful 🎉
+      </h1>
 
       <p className="mt-4 text-gray-700">
         Payment ID: <strong>{paymentId}</strong>
@@ -66,4 +55,3 @@ const PaymentSuccess = () => {
 };
 
 export default PaymentSuccess;
-

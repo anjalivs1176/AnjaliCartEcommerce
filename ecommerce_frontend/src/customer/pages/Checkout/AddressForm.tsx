@@ -2,7 +2,7 @@ import { Box, Button, Grid, TextField } from '@mui/material'
 import { useFormik } from 'formik'
 import React from 'react'
 import * as Yup from "yup"
-import axios from 'axios'
+import api from '../../../config/api'
 
 const AddressFormSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -35,8 +35,8 @@ const AddressForm = ({ onSave, onClose }: any) => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await axios.post(
-          "http://localhost:8080/api/address",
+        const res = await api.post(
+          "/address",
           values,
           {
             headers: {

@@ -1,15 +1,16 @@
-
 import axios from "axios";
 
-export const API_URL = "http://localhost:8080";
+export const API_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:8080/api";
 
 export const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
 });
 
 // routes that MUST NOT get Authorization header
 const PUBLIC_ROUTES = [
-  "/auth",         
+  "/auth",
   "/seller/login",
   "/seller/verify",
 ];
@@ -32,6 +33,3 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
-
-
-
