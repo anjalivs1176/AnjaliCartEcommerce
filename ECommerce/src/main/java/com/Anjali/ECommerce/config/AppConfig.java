@@ -32,21 +32,22 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ✅ AUTH / OTP
+                // PRE-FLIGHT
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // AUTH / OTP
                 .requestMatchers("/api/auth/**").permitAll()
-                // ✅ PUBLIC CUSTOMER APIs (NO TOKEN)
+                // PUBLIC GET APIs
                 .requestMatchers(HttpMethod.GET,
                         "/api/categories/**",
                         "/api/deals/**",
                         "/api/products/**",
                         "/api/public/**"
                 ).permitAll()
-                // ✅ ADMIN LOGIN
+                // ADMIN LOGIN
                 .requestMatchers("/api/admin/login").permitAll()
-                // 🔐 PROTECTED
+                // PROTECTED
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
-                // 🔐 EVERYTHING ELSE
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
@@ -63,7 +64,7 @@ public class AppConfig {
                 "https://anjali-cart.netlify.app"
         ));
 
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
         cfg.setExposedHeaders(List.of("Authorization"));
