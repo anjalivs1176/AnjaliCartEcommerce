@@ -34,22 +34,15 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ✅ ALLOW CORS PREFLIGHT
+                // 🔓 CORS preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // ✅ PUBLIC APIs
-                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                .requestMatchers("/api/home").permitAll()
-                .requestMatchers("/api/home-category").permitAll()
-                .requestMatchers("/api/deals/**").permitAll()
-                .requestMatchers("/api/categories/**").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
+                // 🔓 AUTH (OTP, login, signup)
                 .requestMatchers("/api/auth/**").permitAll()
-                // ✅ SELLER AUTH
-                .requestMatchers(
-                        "/api/seller/login",
-                        "/api/seller/verify",
-                        "/api/seller/login-signup-otp"
-                ).permitAll()
+                // 🔓 PUBLIC APIs
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                .requestMatchers("/api/deals/**").permitAll()
                 // 🔐 ADMIN
                 .requestMatchers("/api/admin/**").authenticated()
                 // 🔐 EVERYTHING ELSE
@@ -97,9 +90,3 @@ public class AppConfig {
         return new RestTemplate();
     }
 }
-
-                        
-                                                                    
-                       
-         
-                                             

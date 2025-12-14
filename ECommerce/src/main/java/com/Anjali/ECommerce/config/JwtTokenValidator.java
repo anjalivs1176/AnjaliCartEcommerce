@@ -23,36 +23,24 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtTokenValidator extends OncePerRequestFilter {
 
-    /**
-     * 🔥 This is the KEY method. Spring Security will COMPLETELY SKIP this
-     * filter for public APIs and OPTIONS (CORS preflight).
-     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
 
         String path = request.getRequestURI();
 
-        // ✅ Always skip CORS preflight
+        // ✅ CORS preflight
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
 
-        // ✅ Skip JWT for public APIs
+        // ✅ PUBLIC APIs (ONLY REAL PATHS)
         return path.startsWith("/api/auth")
                 || path.startsWith("/api/public")
-                || path.startsWith("/api/home-category")
-                || path.startsWith("/api/deals")
+                || path.startsWith("/api/products")
                 || path.startsWith("/api/categories")
-                || path.startsWith("/api/seller/login")
-                || path.startsWith("/api/seller/verify")
-                || path.startsWith("/api/seller/login-signup-otp")
-                || path.startsWith("/api/products");
-
+                || path.startsWith("/api/deals");
     }
 
-    /**
-     * 🔐 JWT validation ONLY for protected APIs
-     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -84,7 +72,8 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 Authentication authentication
                         = new UsernamePasswordAuthenticationToken(email, null, auths);
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
 
             } catch (Exception e) {
                 throw new BadCredentialsException("Invalid JWT Token");

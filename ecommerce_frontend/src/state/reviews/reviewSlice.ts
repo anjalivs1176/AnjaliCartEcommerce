@@ -38,7 +38,7 @@ export const fetchReviews = createAsyncThunk<
   "reviews/fetchReviews",
   async (productId, { rejectWithValue }) => {
     try {
-      const res = await api.get(`/api/products/${productId}/reviews`);
+      const res = await api.get(`/products/${productId}/reviews`);
       return res.data as Review[];
     } catch (err: any) {
       return rejectWithValue(
@@ -58,7 +58,7 @@ export const addReview = createAsyncThunk<
   async ({ productId, body, token }, { rejectWithValue }) => {
     try {
       const res = await api.post(
-        `/api/products/${productId}/reviews`,
+        `/products/${productId}/reviews`,
         body,
         {
           headers: {
@@ -84,7 +84,7 @@ export const deleteReview = createAsyncThunk<
   "reviews/deleteReview",
   async ({ reviewId, token }, { rejectWithValue }) => {
     try {
-      await api.delete(`/api/reviews/${reviewId}`, {
+      await api.delete(`/reviews/${reviewId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
