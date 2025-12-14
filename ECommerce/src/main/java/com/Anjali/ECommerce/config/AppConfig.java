@@ -15,103 +15,92 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import java.util.Collections;
 import java.util.List;
 
-@Configuration                 // 💡 Marks this as a configuration class (used by Spring during startup)
-@EnableWebSecurity             // 💡 Enables Spring Security in the application
+@Configuration
+@EnableWebSecurity
 public class AppConfig {
 
-    /**
-     * 💡 Main security configuration method This defines how Spring Security
-     * will protect all HTTP endpoints. We’re using a stateless setup with JWT
-     * authentication (no sessions).
-     */
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            CorsConfigurationSource corsConfigurationSource
+    ) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .sessionManagement(session
-                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // Customer public
-                // Public product browsing
-                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
 
-                .requestMatchers("/api/home").permitAll()
-                .requestMatchers("/api/deals/**").permitAll()
-                .requestMatchers("/api/categories/**").permitAll()
-                
-                //allow frontend to fetch home grid without login
-                .requestMatchers("/api/public/**").permitAll()
+                        // ---------------- PUBLIC APIs ----------------
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers("/api/home").permitAll()
+                        .requestMatchers("/api/deals/**").permitAll()
+                        .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
 
-                .requestMatchers("/api/auth/**").permitAll()
+                        // ---------------- SELLER AUTH ----------------
+                        .requestMatchers(
+                                "/api/seller/login",
+                                "/api/seller/verify",
+                                "/api/seller/login-signup-otp"
+                        ).permitAll()
 
-                // Seller authentication
-                .requestMatchers(
-                    "/api/seller/login",
-                    "/api/seller/verify",
-                    "/api/seller/login-signup-otp"
-                ).permitAll()
+                        // ---------------- ADMIN ----------------
+                        .requestMatchers("/api/admin/**").authenticated()
 
-                // Admin authentication
-                .requestMatchers("/api/admin/**").authenticated()
-                // Everything else under API requires login
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().permitAll()
+                        // ---------------- ALL OTHER APIs ----------------
+                        .requestMatchers("/api/**").authenticated()
+
+                        // ---------------- EVERYTHING ELSE ----------------
+                        .anyRequest().permitAll()
                 )
-                .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
+                .addFilterBefore(
+                        new JwtTokenValidator(),
+                        BasicAuthenticationFilter.class
+                );
 
         return http.build();
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        return new CorsConfigurationSource() {
-            @Override
-            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                CorsConfiguration cfg = new CorsConfiguration();
+    public CorsConfigurationSource corsConfigurationSource() {
+        return request -> {
+            CorsConfiguration cfg = new CorsConfiguration();
 
-                // ✅ Allow all origins (*) – can be replaced with a specific domain for security
-                //cfg.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                cfg.setAllowedOriginPatterns(List.of("http://localhost:3000"));
+            // Allow frontend domains (LOCAL + NETLIFY)
+            cfg.setAllowedOriginPatterns(List.of(
+                    "http://localhost:3000",
+                    "https://anjali-cart.netlify.app"
+            ));
 
-                // ✅ Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
-                cfg.setAllowedMethods(Collections.singletonList("*"));
+            //  Allow all HTTP methods
+            cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-                // ✅ Allow all headers (Authorization, Content-Type, etc.)
-                cfg.setAllowedHeaders(Collections.singletonList("*"));
+            //  Allow all headers
+            cfg.setAllowedHeaders(List.of("*"));
 
-                // ✅ Allow credentials (e.g., cookies or Authorization headers)
-                cfg.setAllowCredentials(true);
+            // Required for JWT Authorization header
+            cfg.setAllowCredentials(true);
 
-                // ✅ Expose specific headers to frontend (like Authorization)
-                cfg.setExposedHeaders(Collections.singletonList("Authorization"));
+            // Expose Authorization header to frontend
+            cfg.setExposedHeaders(List.of("Authorization"));
 
-                // ✅ Set how long the CORS configuration can be cached by the browser (in seconds)
-                cfg.setMaxAge(3600L);
+            cfg.setMaxAge(3600L);
 
-                return cfg;
-            }
+            return cfg;
         };
     }
 
-    /**
-     * 💡 PasswordEncoder bean Used by Spring Security for hashing passwords
-     * (e.g., during registration or login validation).
-     */
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * 💡 RestTemplate bean Used when you need to make REST API calls from your
-     * backend (e.g., calling an external API).
-     */
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
