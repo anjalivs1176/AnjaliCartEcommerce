@@ -27,7 +27,7 @@ import jakarta.persistence.AttributeOverrides;
 public class Seller {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
     private String sellerName;

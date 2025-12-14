@@ -17,7 +17,7 @@ import java.util.List;
 public class Coupons {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
     private String code;
