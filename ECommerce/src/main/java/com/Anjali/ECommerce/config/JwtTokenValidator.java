@@ -24,23 +24,21 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private String jwtSecret;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain)
-            throws ServletException, IOException {
-
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
-        // ✅ SKIP JWT FOR PUBLIC APIs
-        if (path.startsWith("/api/auth")
+        return path.startsWith("/api/auth")
                 || path.startsWith("/api/categories")
                 || path.startsWith("/api/deals")
                 || path.startsWith("/api/products")
-                || path.startsWith("/api/public")) {
+                || path.startsWith("/api/public");
+    }
 
-            filterChain.doFilter(request, response);
-            return;
-        }
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
 
@@ -49,9 +47,9 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7);
-
         try {
+            String token = authHeader.substring(7);
+
             Claims claims = Jwts.parser()
                     .setSigningKey(jwtSecret.getBytes())
                     .parseClaimsJws(token)
@@ -60,8 +58,8 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             String email = claims.get("email", String.class);
             String role = claims.get("authorities", String.class);
 
-            UsernamePasswordAuthenticationToken authentication
-                    = new UsernamePasswordAuthenticationToken(
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
                             email,
                             null,
                             List.of(new SimpleGrantedAuthority(role))
