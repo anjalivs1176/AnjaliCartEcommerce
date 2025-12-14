@@ -143,26 +143,25 @@ public class ProductServiceImpl implements ProductService {
             String stock,
             Integer pageNumber) {
 
-        // 🔹 Normalize all string params (KEY FIX)
-        category = normalize(category);
-        brand = normalize(brand);
-        color = normalize(color);
-        size = normalize(size);
-        sort = normalize(sort);
-        stock = normalize(stock);
+        final String nCategory = normalize(category);
+        final String nBrand = normalize(brand);
+        final String nColor = normalize(color);
+        final String nSize = normalize(size);
+        final String nSort = normalize(sort);
+        final String nStock = normalize(stock);
 
         Specification<Product> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (category != null) {
+            if (nCategory != null) {
                 Join<Product, Category> categoryJoin = root.join("category");
-                predicates.add(cb.equal(categoryJoin.get("categoryId"), category));
+                predicates.add(cb.equal(categoryJoin.get("categoryId"), nCategory));
             }
-            if (color != null) {
-                predicates.add(cb.equal(root.get("color"), color));
+            if (nColor != null) {
+                predicates.add(cb.equal(root.get("color"), nColor));
             }
-            if (size != null) {
-                predicates.add(cb.equal(root.get("sizes"), size));
+            if (nSize != null) {
+                predicates.add(cb.equal(root.get("sizes"), nSize));
             }
             if (minPrice != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("sellingPrice"), minPrice));
@@ -179,8 +178,8 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable;
 
-        if (sort != null) {
-            pageable = switch (sort) {
+        if (nSort != null) {
+            pageable = switch (nSort) {
                 case "price_low" ->
                     PageRequest.of(pageNumber != null ? pageNumber : 0, 10,
                     Sort.by("sellingPrice").ascending());
