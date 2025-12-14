@@ -24,21 +24,19 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private String jwtSecret;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        return path.startsWith("/api/auth")
-                || path.startsWith("/api/categories")
-                || path.startsWith("/api/deals")
-                || path.startsWith("/api/products")
-                || path.startsWith("/api/public");
-    }
+        String path = request.getServletPath();
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+        // ✅ Allow public auth routes
+        if (path.startsWith("/api/auth/") || path.startsWith("/api/public/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 
@@ -47,22 +45,29 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             return;
         }
 
-        try {
-            String token = authHeader.substring(7);
+        String token = authHeader.substring(7);
 
+        try {
             Claims claims = Jwts.parser()
                     .setSigningKey(jwtSecret.getBytes())
                     .parseClaimsJws(token)
                     .getBody();
 
-            String email = claims.get("email", String.class);
-            String role = claims.get("authorities", String.class);
+            String email = claims.getSubject();
+
+            @SuppressWarnings("unchecked")
+            List<String> roles = claims.get("authorities", List.class);
+
+            List<SimpleGrantedAuthority> authorities =
+                    roles.stream()
+                         .map(SimpleGrantedAuthority::new)
+                         .toList();
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             email,
                             null,
-                            List.of(new SimpleGrantedAuthority(role))
+                            authorities
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
