@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import api from '../../../config/api';
+import React, { useState } from "react";
+import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import api from "../../../config/api";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -9,27 +9,33 @@ const LoginForm = () => {
   const [otp, setOtp] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
+
+  // ✅ SEND OTP
   const handleSendOtp = async () => {
     setErrorMsg("");
 
     try {
       await api.post("/auth/send/login-signup-otp", {
-        email: "signin_" + email,
+        email: email,              // ❗ EXACT email
         role: "ROLE_CUSTOMER"
       });
 
       setOtpSent(true);
-
     } catch (error: any) {
-      const msg = error.response?.data?.message || "Something went wrong";
+      const msg =
+        error.response?.data?.message || "Failed to send OTP";
       setErrorMsg(msg);
     }
   };
+
+  // ✅ LOGIN WITH OTP
   const handleLogin = async () => {
+    setErrorMsg("");
+
     try {
       const res = await api.post("/auth/signing", {
-        email,
-        otp,
+        email: email,              // ❗ SAME email
+        otp: otp,                  // ❗ STRING OTP
         role: "ROLE_CUSTOMER"
       });
 
@@ -37,14 +43,12 @@ const LoginForm = () => {
 
       localStorage.setItem("token", jwt);
       localStorage.setItem("role", role);
-
-
       localStorage.setItem(
         "user",
         JSON.stringify({
-          id: id,
-          name: name,
-          profileImage: profileImage || null
+          id,
+          name,
+          profileImage: profileImage || null,
         })
       );
 
@@ -55,22 +59,19 @@ const LoginForm = () => {
       else navigate("/");
 
     } catch (error: any) {
-      const msg = error.response?.data?.message || "Invalid OTP!";
+      const msg =
+        error.response?.data?.message || "Invalid OTP";
       setErrorMsg(msg);
     }
   };
 
-
-
   return (
     <div>
-      <h1 className='text-xl font-semibold mb-4'>Login</h1>
-
+      <h1 className="text-xl font-semibold mb-4">Login</h1>
 
       {errorMsg && (
         <p className="text-red-600 text-sm mb-3">{errorMsg}</p>
       )}
-
 
       <input
         type="email"
@@ -83,11 +84,10 @@ const LoginForm = () => {
         }}
       />
 
-
       {!otpSent && (
         <Button
           className="w-full p-2 mt-2"
-          variant='contained'
+          variant="contained"
           onClick={handleSendOtp}
         >
           Send OTP
@@ -109,7 +109,7 @@ const LoginForm = () => {
 
           <Button
             className="w-full p-2 mt-4"
-            variant='contained'
+            variant="contained"
             onClick={handleLogin}
           >
             Login
