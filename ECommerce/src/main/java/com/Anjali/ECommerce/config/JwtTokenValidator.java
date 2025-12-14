@@ -45,7 +45,9 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 || path.startsWith("/api/categories")
                 || path.startsWith("/api/seller/login")
                 || path.startsWith("/api/seller/verify")
-                || path.startsWith("/api/seller/login-signup-otp");
+                || path.startsWith("/api/seller/login-signup-otp")
+                || path.startsWith("/api/products");
+
     }
 
     /**
