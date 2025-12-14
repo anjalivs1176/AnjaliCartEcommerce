@@ -58,8 +58,8 @@ public class AppConfig {
 
         cfg.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://anjalicart.netlify.app",
-                "https://anjalicart.onrender.com"
+                "https://anjali-cart.netlify.app",
+                "https://anjalicart-backend.onrender.com"
         ));
 
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
