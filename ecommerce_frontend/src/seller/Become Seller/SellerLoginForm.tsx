@@ -27,15 +27,13 @@ const SellerLoginForm = () => {
     dispatch(clearSellerError());
   };
 
-  useEffect(() => {
-    if (message === "Login successful") {
-      const token = localStorage.getItem("token");
-      if (token) {
-        dispatch(fetchSellerProfile(token));
-      }
-      navigate("/seller");
-    }
-  }, [message, navigate, dispatch]);
+ useEffect(() => {
+  if (message === "Login successful") {
+    dispatch(fetchSellerProfile()); 
+    navigate("/seller");
+  }
+}, [message, navigate, dispatch]);
+
 
   return (
     <div>
