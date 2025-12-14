@@ -33,12 +33,18 @@ const Profile: React.FC = () => {
     setOpen(false);
   };
 
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (token) {
+  //     dispatch(fetchSellerProfile(token));
+  //   }
+  // }, [dispatch]);
+
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      dispatch(fetchSellerProfile(token));
-    }
-  }, [dispatch]);
+  dispatch(fetchSellerProfile());
+}, [dispatch]);
+
 
   if (loading || !seller) {
     return <p className="text-center mt-10">Loading profile...</p>;

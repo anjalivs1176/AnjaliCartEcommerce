@@ -36,14 +36,19 @@ const Transaction: React.FC = () => {
     (state) => state.sellerTransactions
   );
 
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     console.log("Token not available, waiting...");
+  //     return;
+  //   }
+  //   dispatch(fetchSellerTransactions());
+  // }, []);
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.log("Token not available, waiting...");
-      return;
-    }
-    dispatch(fetchSellerTransactions());
-  }, []);
+  dispatch(fetchSellerTransactions());
+}, [dispatch]);
+
 
 
   return (

@@ -49,16 +49,22 @@ export default function ProductTable() {
   const navigate = useNavigate();
   const { products } = useAppSelector((state) => state.sellerProduct);
 
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+
+  //   if (!token) {
+  //     console.log("Token not loaded yet, waiting...");
+  //     return;
+  //   }
+
+  //   dispatch(fetchSellerProducts());
+  // }, []);
+
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
+  dispatch(fetchSellerProducts());
+}, [dispatch]);
 
-    if (!token) {
-      console.log("Token not loaded yet, waiting...");
-      return;
-    }
-
-    dispatch(fetchSellerProducts());
-  }, []);
 
 
   if (!products || products.length === 0) {

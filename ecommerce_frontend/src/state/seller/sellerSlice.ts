@@ -62,8 +62,21 @@
 
 
 
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../config/api";
+
+interface SellerState {
+  seller: any;
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: SellerState = {
+  seller: null,
+  loading: false,
+  error: null,
+};
 
 export const fetchSellerProfile = createAsyncThunk(
   "seller/fetchSellerProfile",
@@ -72,45 +85,23 @@ export const fetchSellerProfile = createAsyncThunk(
       const response = await api.get("/seller/profile");
       return response.data;
     } catch (error: any) {
-      return rejectWithValue("Failed to fetch seller profile");
-    }
-  }
-);
-
-export const fetchSellerOrders = createAsyncThunk(
-  "seller/fetchSellerOrders",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await api.get("/seller/orders");
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue("Failed to fetch seller orders");
-    }
-  }
-);
-
-export const fetchSellerProducts = createAsyncThunk(
-  "seller/fetchSellerProducts",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await api.get("/seller/products");
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue("Failed to fetch seller products");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch seller profile"
+      );
     }
   }
 );
 
 const sellerSlice = createSlice({
   name: "seller",
-  initialState: {
-    profile: null,
-    orders: [],
-    products: [],
-    loading: false,
-    error: null,
+  initialState,
+  reducers: {
+    logoutSeller: (state) => {
+      state.seller = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+    },
   },
-  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchSellerProfile.pending, (state) => {
@@ -118,7 +109,7 @@ const sellerSlice = createSlice({
       })
       .addCase(fetchSellerProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.profile = action.payload;
+        state.seller = action.payload;
       })
       .addCase(fetchSellerProfile.rejected, (state, action) => {
         state.loading = false;
@@ -127,5 +118,5 @@ const sellerSlice = createSlice({
   },
 });
 
+export const { logoutSeller } = sellerSlice.actions;
 export default sellerSlice.reducer;
-
