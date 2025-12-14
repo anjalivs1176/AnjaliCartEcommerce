@@ -4,7 +4,7 @@ export const sendLoginSignupOtp = createAsyncThunk(
   "auth/sendLoginSignupOtp",
   async ({ email }: { email: string }, { rejectWithValue }) => {
     try {
-      const response = await api.post("/api/auth/send/login-signup-otp", {
+      const response = await api.post("/auth/send/login-signup-otp", {
         email,
         role: "ROLE_SELLER",
         otp: null,
@@ -23,7 +23,7 @@ export const loginSeller = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await api.post("/api/seller/login", {
+      const response = await api.post("/seller/login", {
         email,
         password,
       });
@@ -43,7 +43,7 @@ export const loginSeller = createAsyncThunk(
 export const signin = createAsyncThunk<any,any>("/auth/signin",
   async(loginRequest,{rejectWithValue})=>{
     try{
-      const response = await api.post("/api/auth/signin",loginRequest)
+      const response = await api.post("/auth/signin",loginRequest)
       console.log("Login otp", response.data)
     } catch(error){
       console.log("error "+error);
