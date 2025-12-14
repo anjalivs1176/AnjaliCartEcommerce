@@ -1,5 +1,20 @@
 package com.Anjali.ECommerce.Service.Impl;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.Anjali.ECommerce.Domain.USER_ROLE;
 import com.Anjali.ECommerce.Model.Cart;
 import com.Anjali.ECommerce.Model.Seller;
@@ -16,20 +31,8 @@ import com.Anjali.ECommerce.config.JwtProvider;
 import com.Anjali.ECommerce.response.AuthResponse;
 import com.Anjali.ECommerce.response.SignupRequest;
 import com.Anjali.ECommerce.utils.OtpUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -75,31 +78,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String sendLoginAndSignupOtp(String email, USER_ROLE role) throws Exception {
+    public String sendLoginAndSignupOtp(String email, USER_ROLE role) {
 
-        String SIGNIN_PREFIX = "signin_";
-        boolean isLogin = false;
+        // Check if user exists
+        User user = userRepository.findByEmail(email);
 
-        if (email.startsWith(SIGNIN_PREFIX)) {
-            isLogin = true;
-            email = email.substring(SIGNIN_PREFIX.length());
-
-            User user = userRepository.findByEmail(email);
-            if (user == null) {
-                throw new Exception("User doesn't exist with this email");
-            }
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+            user.setRole(role);
+            userRepository.save(user);
         }
 
-        if (!isLogin) {
-            User existingUser = userRepository.findByEmail(email);
-            if (existingUser != null) {
-                throw new Exception("User already exists with this email");
-            }
-        }
-
-        // Delete existing OTP(s)
+        // Delete old OTP
         verificationCodeRepository.deleteByEmail(email);
 
+        // Generate new OTP
         String otp = OtpUtil.generateOtp();
 
         VerificationCode vc = new VerificationCode();
@@ -107,14 +101,19 @@ public class AuthServiceImpl implements AuthService {
         vc.setOtp(otp);
         verificationCodeRepository.save(vc);
 
-        emailService.sendVerificationOtpEmail(
-                email,
-                otp,
-                "AnjaliCart Login/Signup OTP",
-                "Your OTP is: " + otp
-        );
+        // Send email safely
+        try {
+            emailService.sendVerificationOtpEmail(
+                    email,
+                    otp,
+                    "AnjaliCart Login/Signup OTP",
+                    "Your OTP is: " + otp
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send OTP email", e);
+        }
 
-        return SIGNIN_PREFIX;
+        return "OTP sent";
     }
 
     @Override
@@ -167,7 +166,6 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = authenticate(username, otp);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // String token = jwtProvider.generateToken(authentication);
         String token = jwtProvider.generateToken(authentication);
 
         AuthResponse authResponse = new AuthResponse();
@@ -196,24 +194,30 @@ public class AuthServiceImpl implements AuthService {
 
     private Authentication authenticate(String username, String otp) {
 
-        // 1) Attempt to load UserDetails via existing custom service
         UserDetails userDetails = null;
-        try {
-            userDetails = customUserService.loadUserByUsername(username);
-        } catch (Exception ignored) {
+        String roleName = null;
+
+        // 1) Load CUSTOMER from User table (DO NOT use UserDetailsService)
+        User user = userRepository.findByEmail(username);
+
+        if (user != null) {
+            roleName = user.getRole().toString();   // This gives ROLE_CUSTOMER
+            userDetails = org.springframework.security.core.userdetails.User
+                    .withUsername(username)
+                    .password("")
+                    .authorities(new SimpleGrantedAuthority(roleName))
+                    .build();
         }
 
-        // 2) If customUserService didn't find a user, try to build details for seller
+        // 2) Try loading SELLER
         if (userDetails == null) {
             Seller seller = sellerRepository.findByEmail(username);
             if (seller != null) {
-                // build UserDetails for seller (no password needed for OTP flow)
+                roleName = seller.getRole().toString();
                 userDetails = org.springframework.security.core.userdetails.User
                         .withUsername(username)
-                        .password("") // not used in OTP flow
-                        .authorities(new SimpleGrantedAuthority(seller.getRole().toString()))
-                        .accountLocked(false)
-                        .disabled(false)
+                        .password("")
+                        .authorities(new SimpleGrantedAuthority(roleName))
                         .build();
             }
         }
@@ -222,7 +226,7 @@ public class AuthServiceImpl implements AuthService {
             throw new BadCredentialsException("Invalid username");
         }
 
-        // Retrieve verification codes (repository returns list — pick latest)
+        // OTP check
         List<VerificationCode> codes = verificationCodeRepository.findByEmail(username);
         VerificationCode vc = (codes == null || codes.isEmpty()) ? null : codes.get(codes.size() - 1);
 
@@ -230,13 +234,17 @@ public class AuthServiceImpl implements AuthService {
             throw new BadCredentialsException("Invalid OTP");
         }
 
-        // Delete used OTP(s)
         verificationCodeRepository.deleteByEmail(username);
 
+        // 3) ALWAYS GIVE ROLE HERE
+        List<GrantedAuthority> authorities
+                = AuthorityUtils.createAuthorityList(roleName);
+
         return new UsernamePasswordAuthenticationToken(
-                userDetails,
+                username,
                 null,
-                userDetails.getAuthorities()
+                authorities
         );
     }
+
 }
