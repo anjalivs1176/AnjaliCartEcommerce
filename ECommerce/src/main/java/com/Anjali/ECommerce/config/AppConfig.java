@@ -32,22 +32,30 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // PRE-FLIGHT
+                // ---------- PREFLIGHT ----------
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // AUTH / OTP
+                // ---------- AUTH / OTP (PUBLIC) ----------
                 .requestMatchers("/api/auth/**").permitAll()
-                // PUBLIC GET APIs
+                // ---------- SELLER AUTH (PUBLIC) ----------
+                .requestMatchers(
+                        "/api/seller/login",
+                        "/api/seller/send-otp",
+                        "/api/seller/verify-otp"
+                ).permitAll()
+                // ---------- PUBLIC GET APIs ----------
                 .requestMatchers(HttpMethod.GET,
                         "/api/categories/**",
                         "/api/deals/**",
                         "/api/products/**",
                         "/api/public/**"
                 ).permitAll()
-                // ADMIN LOGIN
+                // ---------- ADMIN AUTH ----------
                 .requestMatchers("/api/admin/login").permitAll()
-                // PROTECTED
+                // ---------- ADMIN PROTECTED ----------
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                // ---------- SELLER PROTECTED ----------
                 .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
+                // ---------- EVERYTHING ELSE ----------
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
