@@ -28,24 +28,26 @@ public class AppConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {
                 })
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session
+                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                // Public Routes
+                // ✅ AUTH / OTP
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
-                // Public GET routes for customer browsing
-                .requestMatchers(HttpMethod.GET, "/api/home/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/deals/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/home-categories/**").permitAll()
-                // Admin login public
+                // ✅ PUBLIC CUSTOMER APIs (NO TOKEN)
+                .requestMatchers(HttpMethod.GET,
+                        "/api/categories/**",
+                        "/api/deals/**",
+                        "/api/products/**",
+                        "/api/public/**"
+                ).permitAll()
+                // ✅ ADMIN LOGIN
                 .requestMatchers("/api/admin/login").permitAll()
-                // Protected routes
+                // 🔐 PROTECTED
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().permitAll()
+                // 🔐 EVERYTHING ELSE
+                .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
 
@@ -58,8 +60,7 @@ public class AppConfig {
 
         cfg.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://anjali-cart.netlify.app",
-                "https://anjalicart-backend.onrender.com"
+                "https://anjali-cart.netlify.app"
         ));
 
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));

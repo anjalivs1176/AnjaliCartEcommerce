@@ -24,18 +24,26 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private String jwtSecret;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String path = request.getRequestURI();
 
-        // Allow auth endpoints
-        if (path.startsWith("/api/auth/")) {
+        // ✅ SKIP JWT FOR PUBLIC APIs
+        if (path.startsWith("/api/auth")
+                || path.startsWith("/api/categories")
+                || path.startsWith("/api/deals")
+                || path.startsWith("/api/products")
+                || path.startsWith("/api/public")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -52,11 +60,12 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             String email = claims.get("email", String.class);
             String role = claims.get("authorities", String.class);
 
-            List<SimpleGrantedAuthority> authorities
-                    = List.of(new SimpleGrantedAuthority(role));
-
             UsernamePasswordAuthenticationToken authentication
-                    = new UsernamePasswordAuthenticationToken(email, null, authorities);
+                    = new UsernamePasswordAuthenticationToken(
+                            email,
+                            null,
+                            List.of(new SimpleGrantedAuthority(role))
+                    );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
