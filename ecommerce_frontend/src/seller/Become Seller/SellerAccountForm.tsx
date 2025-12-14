@@ -64,7 +64,7 @@ const SellerAccountForm = () => {
 
 const handleCreateAccount = async (values: any) => {
   try {
-    const { data } = await api.post("/api/seller", values);
+    const { data } = await api.post("/seller", values);
 
     console.log("SELLER CREATED:", data);
     alert(

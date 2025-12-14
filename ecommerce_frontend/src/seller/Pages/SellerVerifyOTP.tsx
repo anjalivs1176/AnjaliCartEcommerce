@@ -33,7 +33,7 @@ const SellerVerifyOTP: React.FC = () => {
       const encodedOtp = encodeURIComponent(otp);
 
       await api.patch(
-        `/api/seller/verify/${encodedEmail}/${encodedOtp}`
+        `/seller/verify/${encodedEmail}/${encodedOtp}`
       );
 
       setStatusMessage("Email verified successfully 🎉 Redirecting to login...");

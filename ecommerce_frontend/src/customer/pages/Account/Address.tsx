@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import UserAddressCard from './UserAddressCard'
-import axios from 'axios'
 import api from '../../../config/api'
 
 const Address = () => {

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Divider } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import OrderStepper from "./OrderStepper";
-import axios from "axios";
 import { Payments } from "@mui/icons-material";
 import api from "../../../config/api";
 

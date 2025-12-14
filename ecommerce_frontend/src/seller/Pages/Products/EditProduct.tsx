@@ -66,7 +66,7 @@ const EditProduct = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await api.get(`/api/sellers/products/${productId}`, {
+      const res = await api.get(`/sellers/products/${productId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

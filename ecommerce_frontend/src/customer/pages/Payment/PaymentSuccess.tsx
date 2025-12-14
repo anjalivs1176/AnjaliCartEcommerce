@@ -17,7 +17,7 @@ const PaymentSuccess = () => {
     const confirmPayment = async () => {
       try {
         await api.get(
-          `/api/payment/${paymentId}?paymentLinkId=${linkId}`
+          `/payment/${paymentId}?paymentLinkId=${linkId}`
         );
 
         setTimeout(() => navigate("/account/orders"), 2000);

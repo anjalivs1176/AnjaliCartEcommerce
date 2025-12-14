@@ -8,7 +8,7 @@ const Wishlist = () => {
 
   const fetchWishlist = async () => {
     try {
-      const { data } = await api.get("/api/wishlist");
+      const { data } = await api.get("/wishlist");
       setWishlist(data);
     } catch (err) {
       console.log("wishlist fetch error:", err);
@@ -23,7 +23,7 @@ const Wishlist = () => {
     e.stopPropagation();
 
     try {
-      await api.post(`/api/wishlist/add-product/${productId}`);
+      await api.post(`/wishlist/add-product/${productId}`);
       fetchWishlist();
     } catch (err) {
       console.log("Remove wishlist error:", err);
@@ -39,7 +39,7 @@ const Wishlist = () => {
         quantity: 1,
       };
 
-      await api.put("/api/cart/add", body);
+      await api.put("/cart/add", body);
       await handleRemove(product.id, e);
     } catch (err) {
       console.log("move to cart error:", err);
