@@ -46,9 +46,9 @@ public class AppConfig {
                         "/api/home-category/**"
                 ).permitAll()
                 // ✅ SELLER
-                .requestMatchers("/api/seller/**").hasRole("ROLE_SELLER")
+                .requestMatchers("/api/seller/**").hasRole("SELLER")
                 // ✅ ADMIN
-                .requestMatchers("/api/admin/**").hasRole("ROLE_ADMIN")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // ✅ EVERYTHING ELSE
                 .anyRequest().authenticated()
                 )
