@@ -30,35 +30,15 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // 🔴 DEBUG: prove filter execution
-        System.out.println("JWT FILTER HIT → " + request.getServletPath());
-
-        // Allow preflight
+        // ✅ Skip preflight
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String path = request.getServletPath();
-
-        // Skip public APIs
-        if (path.startsWith("/api/auth/")
-                || path.startsWith("/api/public/")
-                || path.startsWith("/api/home-category/")
-                || path.startsWith("/api/deals/")
-                || path.startsWith("/api/categories/")
-                || path.startsWith("/api/products/")
-                || path.startsWith("/api/reviews/")
-                || path.startsWith("/api/search/")
-                || path.startsWith("/actuator/")) {
-
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String authHeader = request.getHeader("Authorization");
-        System.out.println("AUTH HEADER → " + authHeader);
 
+        // ✅ If no token → just continue (public or unauthenticated)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -73,14 +53,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                     .getBody();
 
             String email = claims.get("email", String.class);
-
-            Object authClaim = claims.get("authorities");
-            String role = authClaim instanceof List
-                    ? ((List<?>) authClaim).get(0).toString()
-                    : authClaim.toString();
-
-            System.out.println("EMAIL FROM TOKEN → " + email);
-            System.out.println("ROLE FROM TOKEN → " + role);
+            String role = claims.get("authorities", String.class);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
@@ -91,10 +64,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            System.out.println("AUTHORITIES SET → " + authentication.getAuthorities());
-
         } catch (Exception e) {
-            System.out.println("JWT ERROR → " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
