@@ -89,69 +89,73 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@Override
-protected void doFilterInternal(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain
-) throws ServletException, IOException {
+@Component
+public class JwtTokenValidator extends OncePerRequestFilter {
 
-    // 🔥 VERY IMPORTANT
-    SecurityContextHolder.clearContext();
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
-    if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String path = request.getServletPath();
+        if (path.startsWith("/api/auth/")
+                || path.startsWith("/api/public/")
+                || path.startsWith("/api/home-category/")
+                || path.startsWith("/api/deals/")
+                || path.startsWith("/api/categories/")
+                || path.startsWith("/api/products/")
+                || path.startsWith("/api/reviews/")
+                || path.startsWith("/api/search/")
+                || path.startsWith("/actuator/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        try {
+            String token = authHeader.substring(7);
+
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtSecret.getBytes())
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            String email = claims.get("email", String.class);
+
+            Object authClaim = claims.get("authorities");
+            String role = authClaim instanceof List
+                    ? ((List<?>) authClaim).get(0).toString()
+                    : authClaim.toString();
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            email,
+                            null,
+                            List.of(new SimpleGrantedAuthority(role))
+                    );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
         filterChain.doFilter(request, response);
-        return;
     }
-
-    String path = request.getServletPath();
-
-    if (path.startsWith("/api/auth/")
-            || path.startsWith("/api/public/")
-            || path.startsWith("/api/home-category/")
-            || path.startsWith("/api/deals/")
-            || path.startsWith("/api/categories/")
-            || path.startsWith("/api/products/")
-            || path.startsWith("/api/reviews/")
-            || path.startsWith("/api/search/")
-            || path.startsWith("/actuator/")) {
-
-        filterChain.doFilter(request, response);
-        return;
-    }
-
-    String authHeader = request.getHeader("Authorization");
-
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        filterChain.doFilter(request, response);
-        return;
-    }
-
-    String token = authHeader.substring(7);
-
-    try {
-        Claims claims = Jwts.parser()
-                .setSigningKey(jwtSecret.getBytes())
-                .parseClaimsJws(token)
-                .getBody();
-
-        String email = claims.get("email", String.class);
-        String role = claims.get("authorities", String.class);
-
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        email,
-                        null,
-                        List.of(new SimpleGrantedAuthority(role))
-                );
-
-        authentication.setDetails(request);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-    } catch (Exception e) {
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        return;
-    }
-
-    filterChain.doFilter(request, response);
 }
