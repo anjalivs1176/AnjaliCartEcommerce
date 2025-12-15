@@ -43,13 +43,12 @@ public class AppConfig {
                         "/api/reviews/**",
                         "/api/search/**",
                         "/api/deals/**",
-                        "/api/public/home-category/**",
-                        "/api/cart/**"
+                        "/api/public/home-category/**"
                 ).permitAll()
                 // ✅ CUSTOMER
                 .requestMatchers(
                         "/api/orders/**",
-                        
+                        "/api/cart/**",
                         "/api/wishlist/**",
                         "/api/address/**",
                         "/api/user/**"
