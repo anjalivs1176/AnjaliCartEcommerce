@@ -4,17 +4,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.Anjali.ECommerce.Domain.AccountStatus;
 import com.Anjali.ECommerce.Model.Seller;
@@ -25,7 +19,6 @@ import com.Anjali.ECommerce.Service.AuthService;
 import com.Anjali.ECommerce.Service.EmailService;
 import com.Anjali.ECommerce.Service.SellerReportService;
 import com.Anjali.ECommerce.Service.SellerService;
-import com.Anjali.ECommerce.config.JwtProvider;
 import com.Anjali.ECommerce.response.AuthResponse;
 
 import jakarta.mail.MessagingException;
@@ -42,9 +35,12 @@ public class SellerController {
     private final VerificationCodeRepository verificationCodeRepository;
     private final AuthService authService;
     private final EmailService emailService;
-    private final JwtProvider jwtProvider;
     private final SellerReportService sellerReportService;
 
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
+    // ---------------------- LOGIN --------------------------
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> loginSeller(@RequestBody LoginRequest req) throws Exception {
         AuthResponse response = authService.loginSeller(req);
@@ -53,7 +49,7 @@ public class SellerController {
 
     // ---------------------- SIGNUP --------------------------
     @PostMapping
-    public ResponseEntity<?> createSeller(@RequestBody Seller seller)
+    public ResponseEntity<Seller> createSeller(@RequestBody Seller seller)
             throws Exception, MessagingException {
 
         Seller savedSeller = sellerService.createSeller(seller);
@@ -61,19 +57,22 @@ public class SellerController {
         // Generate OTP
         String otp = com.Anjali.ECommerce.utils.OtpUtil.generateOtp();
 
-        // Save OTP row
+        // Save OTP
         VerificationCode vc = new VerificationCode();
         vc.setEmail(savedSeller.getEmail());
         vc.setOtp(otp);
         verificationCodeRepository.save(vc);
 
-        // URL encode email
+        // Encode email for URL
         String encodedEmail = URLEncoder.encode(savedSeller.getEmail(), StandardCharsets.UTF_8);
 
-        String verifyUrl = "http://localhost:3000/verify-seller/" + encodedEmail + "/" + otp;
+        // ✅ Production-safe frontend URL
+        String verifyUrl = frontendUrl + "/verify-seller/" + encodedEmail + "/" + otp;
 
         String subject = "AnjaliCart Seller Email Verification";
-        String text = "Welcome to AnjaliCart! Your OTP: " + otp + "\n\nVerify here:\n" + verifyUrl;
+        String text = "Welcome to AnjaliCart!\n\n"
+                + "Your OTP: " + otp + "\n\n"
+                + "Verify your email here:\n" + verifyUrl;
 
         emailService.sendVerificationOtpEmail(savedSeller.getEmail(), otp, subject, text);
 
@@ -90,7 +89,6 @@ public class SellerController {
         try {
             log.info("Verifying seller email={} otp={}", email, otp);
 
-            // Now repository returns List<VerificationCode>
             var codes = verificationCodeRepository.findByEmail(email);
 
             if (codes == null || codes.isEmpty()) {
@@ -112,22 +110,22 @@ public class SellerController {
                         .body(Map.of("error", "Seller not found"));
             }
 
-            // Mark verified
+            // Activate account
             seller.setEmailVerified(true);
             seller.setAccountStatus(AccountStatus.ACTIVE);
 
-            // delete OTP(s)
+            // Clean OTPs
             verificationCodeRepository.deleteByEmail(email);
 
             return ResponseEntity.ok(Map.of(
                     "message", "Email verified successfully",
-                    "seller", seller
+                    "sellerId", seller.getId()
             ));
 
         } catch (Exception e) {
-            log.error("Verification failed", e);
+            log.error("Seller email verification failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Server error while verifying"));
+                    .body(Map.of("error", "Server error while verifying email"));
         }
     }
 
@@ -147,8 +145,6 @@ public class SellerController {
 
         Seller seller = sellerService.getSellerProfile(jwt);
         Seller updated = sellerService.updateSeller(seller.getId(), updateData);
-
         return ResponseEntity.ok(updated);
     }
-
 }

@@ -121,6 +121,8 @@ public class AppConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/seller/login").permitAll()
                 .requestMatchers("/api/admin/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/seller").permitAll()
+                .requestMatchers(HttpMethod.PATCH, "/api/seller/verify/**").permitAll()
                 // ✅ PUBLIC GET APIs
                 .requestMatchers(HttpMethod.GET,
                         // HOME / LANDING
