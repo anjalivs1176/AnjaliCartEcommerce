@@ -1,10 +1,7 @@
-
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AddReviewBody } from "../../type/review";
 import { ReviewResponse } from "../../type/review";
-
-import api  from "../../config/api"
-
+import api from "../../config/api";
 
 export interface Review {
   id: number;
@@ -30,6 +27,7 @@ const initialState: ReviewState = {
   error: null,
 };
 
+// ✅ FETCH REVIEWS (PUBLIC)
 export const fetchReviews = createAsyncThunk<
   Review[],
   number,
@@ -48,23 +46,18 @@ export const fetchReviews = createAsyncThunk<
   }
 );
 
-
+// ✅ ADD REVIEW (JWT via interceptor)
 export const addReview = createAsyncThunk<
   Review,
-  { productId: number; body: AddReviewBody; token: string },
+  { productId: number; body: AddReviewBody },
   { rejectValue: string }
 >(
   "reviews/addReview",
-  async ({ productId, body, token }, { rejectWithValue }) => {
+  async ({ productId, body }, { rejectWithValue }) => {
     try {
       const res = await api.post(
         `/products/${productId}/reviews`,
-        body,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        body
       );
 
       return res.data as Review;
@@ -76,20 +69,16 @@ export const addReview = createAsyncThunk<
   }
 );
 
+// ✅ DELETE REVIEW (JWT via interceptor)
 export const deleteReview = createAsyncThunk<
   number,
-  { reviewId: number; token: string },
+  number,
   { rejectValue: string }
 >(
   "reviews/deleteReview",
-  async ({ reviewId, token }, { rejectWithValue }) => {
+  async (reviewId, { rejectWithValue }) => {
     try {
-      await api.delete(`/reviews/${reviewId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      await api.delete(`/reviews/${reviewId}`);
       return reviewId;
     } catch (err: any) {
       return rejectWithValue(
@@ -99,14 +88,13 @@ export const deleteReview = createAsyncThunk<
   }
 );
 
-
-
 const reviewSlice = createSlice({
   name: "reviews",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // FETCH
       .addCase(fetchReviews.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -125,12 +113,16 @@ const reviewSlice = createSlice({
           state.error = action.payload as string;
         }
       )
+
+      // ADD
       .addCase(
         addReview.fulfilled,
         (state, action: PayloadAction<Review>) => {
           state.reviews.unshift(action.payload);
         }
       )
+
+      // DELETE
       .addCase(
         deleteReview.fulfilled,
         (state, action: PayloadAction<number>) => {

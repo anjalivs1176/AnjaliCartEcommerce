@@ -16,7 +16,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { uploadToCloudinary } from "../../../Util/uploadToCloudinary";
 
-import { api } from "../../../config/api";
+import api from "../../../config/api";
 import { useAppDispatch } from "../../../state/store";
 import { updateProduct } from "../../../state/seller/sellerProductSlice";
 

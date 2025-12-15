@@ -13,31 +13,21 @@ const OrderDetails = () => {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchOrder = async () => {
-    try {
-      const token = localStorage.getItem("token");
+const fetchOrder = async () => {
+  try {
+    const res = await api.get(`/orders/${orderId}`);
+    console.log("ORDER DETAILS ", res.data);
+    setOrder(res.data);
+  } catch (err) {
+    console.error("Error loading order details:", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const res = await api.get(
-        `/orders/${orderId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("ORDER DETAILS ", res.data);
-      setOrder(res.data);
-    } catch (err) {
-      console.error("Error loading order details:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrder();
-  }, [fetchOrder]);
+useEffect(() => {
+  fetchOrder();
+}, [orderId]);
 
   if (loading) return <p>Loading order details...</p>;
   if (!order) return <p>Order not found.</p>;
@@ -52,26 +42,16 @@ const OrderDetails = () => {
     order.orderStatus !== "CANCELLED" &&
     order.orderStatus !== "SHIPPED";
 
-  const handleCancelOrder = async () => {
-    try {
-      const token = localStorage.getItem("token");
+const handleCancelOrder = async () => {
+  try {
+    await api.put(`/orders/${order.id}/cancel`, {});
+    alert("Order cancelled successfully!");
+    fetchOrder();
+  } catch (e) {
+    console.error("Error cancelling:", e);
+  }
+};
 
-      await api.put(
-        `/orders/${order.id}/cancel`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      alert("Order cancelled successfully!");
-      fetchOrder();
-    } catch (e) {
-      console.error("Error cancelling:", e);
-    }
-  };
 
   return (
     <Box className="space-y-5">

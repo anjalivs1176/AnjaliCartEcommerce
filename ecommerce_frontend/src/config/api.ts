@@ -6,7 +6,7 @@ const API_URL =
 
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: false, // 🔥 IMPORTANT
+  withCredentials: false,
 });
 
 // PUBLIC ROUTES (NO TOKEN)
@@ -23,13 +23,12 @@ const PUBLIC_ROUTES = [
 api.interceptors.request.use((config) => {
   const url = config.url || "";
 
-  // If public route → don't attach token
+  // Public → no token
   if (PUBLIC_ROUTES.some((route) => url.startsWith(route))) {
     return config;
   }
 
   const token = localStorage.getItem("token");
-
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
