@@ -52,8 +52,7 @@ public class AppConfig {
                         "/api/wishlist/**",
                         "/api/address/**",
                         "/api/user/**"
-                ).hasAuthority("ROLE_CUSTOMER")
-                // ✅ SELLER
+                ).authenticated()
                 .requestMatchers("/api/seller/**")
                 .hasAuthority("ROLE_SELLER")
                 // ✅ ADMIN
