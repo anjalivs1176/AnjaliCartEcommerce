@@ -11,8 +11,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,6 +50,8 @@ public class User {
 
     private String mobile;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", length = 20)
     private USER_ROLE role = USER_ROLE.ROLE_CUSTOMER;
 
     @ElementCollection
@@ -56,7 +61,6 @@ public class User {
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Coupons> usedCoupons = new ArrayList<>();
-
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
