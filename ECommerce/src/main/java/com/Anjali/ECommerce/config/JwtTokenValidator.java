@@ -32,7 +32,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        // ✅ SKIP JWT CHECK FOR ALL PUBLIC APIs (even if token exists)
+        // SKIP PUBLIC APIs EVEN IF TOKEN EXISTS
         if (path.startsWith("/api/auth/")
                 || path.startsWith("/api/public/")
                 || path.startsWith("/api/home-category/")
@@ -42,13 +42,13 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                 || path.startsWith("/api/reviews/")
                 || path.startsWith("/api/search/")
                 || path.startsWith("/actuator/")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
 
-        // No token → let Spring decide
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -63,7 +63,14 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                     .getBody();
 
             String email = claims.getSubject();
-            String role = claims.get("authorities", String.class);
+            Object auth = claims.get("authorities");
+
+            String role;
+            if (auth instanceof List<?> list && !list.isEmpty()) {
+                role = list.get(0).toString();
+            } else {
+                role = auth.toString();
+            }
 
             UsernamePasswordAuthenticationToken authentication
                     = new UsernamePasswordAuthenticationToken(

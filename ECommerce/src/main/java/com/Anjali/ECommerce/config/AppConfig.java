@@ -2,6 +2,7 @@ package com.Anjali.ECommerce.config;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,7 +19,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class AppConfig {
+
+    private final JwtTokenValidator jwtTokenValidator;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -31,15 +35,13 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ---------------- PREFLIGHT ----------------
+                // PREFLIGHT
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // ---------------- AUTH / LOGIN ----------------
+                // AUTH
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/seller/login").permitAll()
                 .requestMatchers("/api/admin/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/seller").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/api/seller/verify/**").permitAll()
-                // ---------------- PUBLIC GET APIs ----------------
+                // PUBLIC GET APIs
                 .requestMatchers(HttpMethod.GET,
                         "/api/public/**",
                         "/api/home-category/**",
@@ -48,23 +50,21 @@ public class AppConfig {
                         "/api/products/**",
                         "/api/reviews/**",
                         "/api/search/**",
-                        "/actuator/health",
-                        "/actuator/info"
+                        "/actuator/**"
                 ).permitAll()
-                // ---------------- CUSTOMER ----------------
+                // CUSTOMER
                 .requestMatchers("/api/cart/**").hasAuthority("ROLE_CUSTOMER")
                 .requestMatchers("/api/wishlist/**").hasAuthority("ROLE_CUSTOMER")
                 .requestMatchers("/api/user/**").hasAuthority("ROLE_CUSTOMER")
                 .requestMatchers("/api/address/**").hasAuthority("ROLE_CUSTOMER")
                 .requestMatchers("/api/orders/**").hasAuthority("ROLE_CUSTOMER")
-                // ---------------- SELLER ----------------
+                // SELLER
                 .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
-                // ---------------- ADMIN ----------------
+                // ADMIN
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                // ---------------- EVERYTHING ELSE ----------------
                 .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
+                .addFilterBefore(jwtTokenValidator, BasicAuthenticationFilter.class);
 
         return http.build();
     }
