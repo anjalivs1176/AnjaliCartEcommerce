@@ -34,6 +34,9 @@ public class AppConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+
+.anyRequest().permitAll()
+
             .authorizeHttpRequests(auth -> auth
 
                 // ✅ PREFLIGHT
