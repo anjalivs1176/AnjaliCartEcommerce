@@ -2,6 +2,7 @@ package com.Anjali.ECommerce.config;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,42 +13,72 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class AppConfig {
+
+    private final JwtTokenValidator jwtTokenValidator;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> {
-                })
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                // Public Routes
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> {})
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(auth -> auth
+
+                // ✅ PREFLIGHT
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // ✅ AUTH / LOGIN
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
-                // Public GET routes for customer browsing
-                .requestMatchers(HttpMethod.GET, "/api/home/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/deals/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/home-categories/**").permitAll()
-                // Admin login public
+                .requestMatchers("/api/seller/login").permitAll()
                 .requestMatchers("/api/admin/login").permitAll()
-                // Protected routes
-                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().permitAll()
-                )
-                .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
+
+                // ✅ PUBLIC GET APIs
+                .requestMatchers(HttpMethod.GET,
+                        "/api/public/**",
+                        "/api/home-category/**",
+                        "/api/deals/**",
+                        "/api/categories/**",
+                        "/api/products/**",
+                        "/api/reviews/**",
+                        "/api/search/**",
+                        "/actuator/**"
+                ).permitAll()
+
+                // ✅ CUSTOMER (USER)
+                .requestMatchers(
+                        "/api/cart/**",
+                        "/api/wishlist/**",
+                        "/api/user/**",
+                        "/api/profile/**",
+                        "/api/address/**",
+                        "/api/orders/**",
+                        "/api/coupons/**"
+                ).hasAuthority("ROLE_USER")
+
+                // ✅ SELLER
+                .requestMatchers("/api/seller/**")
+                .hasAuthority("ROLE_SELLER")
+
+                // ✅ ADMIN
+                .requestMatchers("/api/admin/**")
+                .hasAuthority("ROLE_ADMIN")
+
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }
@@ -55,14 +86,11 @@ public class AppConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-
         cfg.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://anjalicart.netlify.app",
-                "https://anjalicart.onrender.com"
+                "https://anjali-cart.netlify.app"
         ));
-
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
         cfg.setExposedHeaders(List.of("Authorization"));
@@ -76,10 +104,5 @@ public class AppConfig {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 }

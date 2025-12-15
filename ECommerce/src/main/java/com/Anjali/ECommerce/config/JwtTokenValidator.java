@@ -24,45 +24,59 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private String jwtSecret;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        String path = request.getServletPath();
-
-        // Allow auth endpoints
-        if (path.startsWith("/api/auth/")) {
+        // ✅ Skip preflight
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
+
+        // ✅ No token → continue
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-
         try {
+            String token = authHeader.substring(7);
+
             Claims claims = Jwts.parser()
                     .setSigningKey(jwtSecret.getBytes())
                     .parseClaimsJws(token)
                     .getBody();
 
             String email = claims.get("email", String.class);
-            String role = claims.get("authorities", String.class); // ⭐ role here
+            String role = claims.get("role", String.class); // USER / SELLER
 
-            List<SimpleGrantedAuthority> authorities
-                    = List.of(new SimpleGrantedAuthority(role));
+            // 🔥 THIS IS THE FIX
+            List<SimpleGrantedAuthority> authorities =
+                    List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-            UsernamePasswordAuthenticationToken authentication
-                    = new UsernamePasswordAuthenticationToken(email, null, authorities);
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            email,
+                            null,
+                            authorities
+                    );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+
+System.out.println(">>> AUTHORITY SEEN BY SPRING = " +
+    SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getAuthorities());
+
+
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
