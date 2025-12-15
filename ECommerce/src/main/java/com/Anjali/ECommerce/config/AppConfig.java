@@ -29,60 +29,27 @@ public class AppConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> {})
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-
-
-
-            .authorizeHttpRequests(auth -> auth
-.anyRequest().permitAll()
-
-                // ✅ PREFLIGHT
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                // ✅ AUTH / LOGIN
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/seller/login").permitAll()
-                .requestMatchers("/api/admin/login").permitAll()
-
-                // ✅ PUBLIC GET APIs
-                .requestMatchers(HttpMethod.GET,
-                        "/api/public/**",
-                        "/api/home-category/**",
-                        "/api/deals/**",
-                        "/api/categories/**",
-                        "/api/products/**",
-                        "/api/reviews/**",
-                        "/api/search/**",
-                        "/actuator/**"
-                ).permitAll()
-
-                // ✅ CUSTOMER (USER)
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session
+                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth
+                // ✅ PUBLIC ROUTES FIRST
                 .requestMatchers(
-                        "/api/cart/**",
-                        "/api/wishlist/**",
-                        "/api/user/**",
-                        "/api/profile/**",
-                        "/api/address/**",
-                        "/api/orders/**",
-                        "/api/coupons/**"
-                ).hasAuthority("ROLE_USER")
-
-                // ✅ SELLER
-                .requestMatchers("/api/seller/**")
-                .hasAuthority("ROLE_SELLER")
-
-                // ✅ ADMIN
-                .requestMatchers("/api/admin/**")
-                .hasAuthority("ROLE_ADMIN")
-
+                        "/auth/**",
+                        "/seller/login",
+                        "/seller/verify",
+                        "/categories/**",
+                        "/products/**",
+                        "/reviews/**",
+                        "/search/**"
+                ).permitAll()
+                // ✅ ROLE BASED
+                .requestMatchers("/seller/**").hasRole("SELLER")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                // ✅ ALWAYS LAST
                 .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
-
+                );
 
         return http.build();
     }

@@ -1,0 +1,80 @@
+[33m601ad4f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m fixed322
+[33m5198304[m fixed3
+[33mcdb6b97[m fixed
+[33md625de6[m fixed app config filee:
+[33m17b1c3a[m finalllyy
+[33m1b90e53[m finalllyy
+[33m6bf9b36[m api
+[33m3e2a857[m api
+[33m359e95d[m api
+[33m951c530[m finalllyy
+[33mecd6167[m finalllyy
+[33m0799239[m final fix
+[33m043943b[m final fix
+[33m3167fa7[m final fix app config90
+[33me168be5[m final fix app config
+[33m29194ec[m final fix app config
+[33mcc7c0ac[m final fix app config
+[33m1be35c6[m api.ts
+[33m39fb930[m fixed jwt
+[33m372fea1[m fixed cart wishlist200
+[33mcbff705[m fixed cart wishlist9
+[33m4f9d4d0[m fixed cart wishlist20
+[33m457d63a[m fixed cart wishlist2
+[33m30ed8ce[m fixed cart wishlist
+[33mff6f52b[m Fix cart & wishlist auth via SecurityContext
+[33m145f8cf[m app config
+[33m40e54c6[m Fix api.ts
+[33m0b32a28[m Fix JWT filter & public APIs
+[33m3b86eb4[m Fix stock toggle TS error
+[33m0f63645[m fixed frontend24
+[33m598c9bc[m fixed frontend2
+[33m217a78a[m fixed frontend
+[33m51ced16[m fixed config6
+[33m994e10f[m fixed config5
+[33m225375a[m fixed config4
+[33m3c4bf61[m fixed config
+[33m0a6574a[m updated seller controlelr with frontend url1
+[33m2185aae[m updated seller controlelr with frontend url
+[33m642953d[m updated seller controlelr
+[33mc7c2cf2[m updated slice filesq
+[33ma63abaf[m fixed app config
+[33mea53aa7[m fixed seller profile1
+[33m16f6205[m updated slice files
+[33mc02b2a5[m fixed seller profile2
+[33m30c4aeb[m fixed seller profile
+[33m1eb2809[m updated slice files to import correct api
+[33m5c2adc1[m updated appconfig file
+[33m48200d9[m fixed token validator file
+[33m70717d0[m fixed login file
+[33m9145b36[m fixed entity
+[33m85ec6f9[m fixed authSlice
+[33mb0f5fa6[m fixed app config
+[33m8c80574[m corrected jwttokenvalidator
+[33m7591aeb[m fixed token validator
+[33m2ea7423[m created Email Service Interface3
+[33mbf03f62[m created Email Service Interface1
+[33m75bce97[m added BREVO_API_Key
+[33m0312e9b[m created Email Service Interface
+[33m6f37458[m fixed config files
+[33md406b21[m fixed jwt token validator
+[33m019ad26[m fix: normalize product filter params to avoid prod crashes
+[33m2c05afe[m fix: normalize product filter params to handle empty values
+[33me716f07[m fixed productslice
+[33m8754d15[m fix: update home category API to public endpoint
+[33m4f8a405[m fix: allow options requests and public apis
+[33mbcde3da[m fix: skip jwt filter for public apis and options
+[33ma6ae163[m fix: skip JWT filter for public APIs
+[33m516d3ed[m fix: allow public home-category endpoint
+[33mf4cf11c[m updated axios file1
+[33mf3af0d9[m removed unused imports2
+[33ma407c45[m  updated app config file to avoid cors issue
+[33m284ef56[m removed unused imports
+[33m0457749[m updated all the urls starting with api
+[33m698e7a1[m refactor(api): remove hardcoded URLs and use shared axios config
+[33m8100c90[m fix: set from address for Brevo SMTP
+[33m545c493[m fix: compile with Java 17 for render
+[33m2ba327d[m fix: build jar inside docker for render
+[33m53da584[m fix: use eclipse-temurin Java 17 base image
+[33mf8369bb[m Add production config using env variables
+[33m3ed4bb3[m Initial clean commit - fresh deployment setup
