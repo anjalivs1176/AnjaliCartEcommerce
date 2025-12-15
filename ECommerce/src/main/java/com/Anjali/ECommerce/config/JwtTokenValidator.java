@@ -30,12 +30,13 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String path = request.getRequestURI();
 
-        // ✅ Allow public routes
+        // SKIP PUBLIC ROUTES
         if (
                 path.startsWith("/api/auth/")
                 || path.startsWith("/api/public/")
+                || path.startsWith("/api/home-category/")
                 || path.startsWith("/actuator/")
         ) {
             filterChain.doFilter(request, response);
@@ -44,7 +45,6 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // ✅ If no token, let Spring Security decide (will block protected APIs)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -59,24 +59,18 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                     .getBody();
 
             String email = claims.getSubject();
-
-            // 🔥 FIXED PART — authorities is STRING in your JWT
-            String role = claims.get("authorities", String.class);
-
-            List<SimpleGrantedAuthority> authorities =
-                    List.of(new SimpleGrantedAuthority(role));
+            String role = "ROLE_" + claims.get("authorities", String.class);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             email,
                             null,
-                            authorities
+                            List.of(new SimpleGrantedAuthority(role))
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
-            // ❌ Invalid token → block request
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
