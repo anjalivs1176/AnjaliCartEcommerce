@@ -1,29 +1,16 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../config/api";
 
-// export const fetchSellerProfile = createAsyncThunk(
-//   "seller/fetchSellerProfile",
-//   async (jwt: string, { rejectWithValue }) => {
-//     try {
-//       const response = await api.get("/seller/profile", {
-//         headers: {
-//           Authorization: `Bearer ${jwt}`,
-//         },
-//       });
-//       console.log("fetch seller profile : ", response.data)
-//       return response.data;
-//     } catch (error: any) {
-//       return rejectWithValue(error.response?.data?.message || "Failed to fetch profile");
-//     }
-//   }
-// );
+/* =========================
+   THUNKS
+========================= */
 
-
-
+// ✅ FETCH SELLER PROFILE
 export const fetchSellerProfile = createAsyncThunk(
   "seller/fetchSellerProfile",
   async (_, { rejectWithValue }) => {
     try {
+      // interceptor attaches: Authorization: Bearer <token>
       const response = await api.get("/seller/profile");
       return response.data;
     } catch (error: any) {
@@ -34,28 +21,28 @@ export const fetchSellerProfile = createAsyncThunk(
   }
 );
 
-
-
-
+// ✅ UPDATE SELLER PROFILE
 export const updateSellerProfile = createAsyncThunk(
   "seller/updateSellerProfile",
   async (updateData: any, { rejectWithValue }) => {
     try {
-      const jwt = localStorage.getItem("token");
-
-      const response = await api.patch("/api/seller/profile/update", updateData, {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      });
-
+      // ❌ no manual token, interceptor handles it
+      const response = await api.patch(
+        "/seller/profile/update",
+        updateData
+      );
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Failed to update profile");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update seller profile"
+      );
     }
   }
 );
 
+/* =========================
+   SLICE
+========================= */
 
 interface SellerState {
   seller: any;
@@ -70,13 +57,15 @@ const initialState: SellerState = {
 };
 
 const sellerProfileSlice = createSlice({
-  name: "seller",
+  name: "sellerProfile",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // FETCH PROFILE
       .addCase(fetchSellerProfile.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchSellerProfile.fulfilled, (state, action) => {
         state.loading = false;
@@ -86,9 +75,11 @@ const sellerProfileSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
+      // UPDATE PROFILE
       .addCase(updateSellerProfile.fulfilled, (state, action) => {
-          state.seller = action.payload;
-      });  
+        state.seller = action.payload;
+      });
   },
 });
 

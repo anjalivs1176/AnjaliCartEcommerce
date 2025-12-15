@@ -1,47 +1,51 @@
-import React, { useEffect, useState } from 'react'
-import UserAddressCard from './UserAddressCard'
-import api from '../../../config/api'
+import React, { useEffect, useState } from "react";
+import UserAddressCard from "./UserAddressCard";
+import api from "../../../config/api";
 
 const Address = () => {
-  const [addresses, setAddresses] = useState<any[]>([])
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchAddresses = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const res = await api.get('/address', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setAddresses(res.data)
+      setLoading(true);
+      const res = await api.get("/address"); // 🔥 interceptor adds token
+      setAddresses(res.data);
     } catch (err) {
-      console.error("Failed to fetch addresses", err)
+      console.error("Failed to fetch addresses", err);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchAddresses()
+    fetchAddresses();
 
-    const handler = () => fetchAddresses()
-    window.addEventListener("addressAdded", handler)
+    const handler = () => fetchAddresses();
+    window.addEventListener("addressAdded", handler);
 
-    return () => window.removeEventListener("addressAdded", handler)
-  }, [])
+    return () => window.removeEventListener("addressAdded", handler);
+  }, []);
+
+  if (loading) {
+    return <p className="text-gray-500">Loading addresses...</p>;
+  }
 
   return (
-    <div className='space-y-3'>
+    <div className="space-y-3">
       {addresses.length === 0 && (
-        <p className='text-gray-500'>No saved addresses yet.</p>
+        <p className="text-gray-500">No saved addresses yet.</p>
       )}
 
       {addresses.map((addr, index) => (
-        <UserAddressCard 
-          key={index}
+        <UserAddressCard
+          key={addr.id ?? index}
           index={index}
-          address={addr} 
+          address={addr}
         />
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default Address
-
+export default Address;

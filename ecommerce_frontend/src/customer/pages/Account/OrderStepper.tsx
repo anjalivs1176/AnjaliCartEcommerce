@@ -1,4 +1,3 @@
-
 import { Box } from "@mui/material";
 import { CheckCircle, FiberManualRecord } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
@@ -17,10 +16,15 @@ const canceledFlow = [
 ];
 
 const getStepIndex = (status: string) => {
-  return steps.findIndex((s) => s.value === status);
+  const idx = steps.findIndex((s) => s.value === status);
+  return idx === -1 ? 0 : idx;
 };
 
-const OrderStepper = ({ orderStatus }: any) => {
+interface Props {
+  orderStatus: string;
+}
+
+const OrderStepper: React.FC<Props> = ({ orderStatus }) => {
   const [flow, setFlow] = useState(steps);
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -37,10 +41,8 @@ const OrderStepper = ({ orderStatus }: any) => {
   return (
     <Box className="my-10">
       {flow.map((step, index) => (
-        <div key={index} className="flex px-4">
-          {/* LEFT SIDE DOT + LINE */}
+        <div key={step.value} className="flex px-4">
           <div className="flex flex-col items-center">
-
             <Box
               className={`w-8 h-8 rounded-full flex items-center justify-center
                 ${index <= currentStep ? "bg-primary-color text-white" : "bg-gray-300 text-gray-600"}
@@ -58,7 +60,7 @@ const OrderStepper = ({ orderStatus }: any) => {
                 className={`border h-20 w-[2px] 
                   ${index < currentStep ? "bg-primary-color" : "bg-gray-300"}
                 `}
-              ></div>
+              />
             )}
           </div>
 
