@@ -97,7 +97,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
@@ -132,8 +131,6 @@ public class AppConfig {
                         "/api/categories/**",
                         "/api/products/**",
                         // PRODUCT DETAILS PAGE
-                        "/api/products/*",
-                        "/api/products/**/reviews",
                         "/api/reviews/**",
                         // SEARCH / FILTER (if used)
                         "/api/search/**",
