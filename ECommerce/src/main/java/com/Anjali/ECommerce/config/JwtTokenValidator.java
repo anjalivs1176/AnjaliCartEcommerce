@@ -24,52 +24,45 @@ public class JwtTokenValidator extends OncePerRequestFilter {
     private String jwtSecret;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        // ✅ Skip preflight
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+        String path = request.getServletPath();
+
+        // Allow auth endpoints
+        if (path.startsWith("/api/auth/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
-
-        // ✅ No token → continue
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        try {
-            String token = authHeader.substring(7);
+        String token = authHeader.substring(7);
 
+        try {
             Claims claims = Jwts.parser()
                     .setSigningKey(jwtSecret.getBytes())
                     .parseClaimsJws(token)
                     .getBody();
 
             String email = claims.get("email", String.class);
-            String role = claims.get("role", String.class); // USER / SELLER
+            String role = claims.get("authorities", String.class); // ⭐ role here
 
-            // 🔥 THIS IS THE FIX
-            List<SimpleGrantedAuthority> authorities =
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role));
+            List<SimpleGrantedAuthority> authorities
+                    = List.of(new SimpleGrantedAuthority(role));
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            email,
-                            null,
-                            authorities
-                    );
+            UsernamePasswordAuthenticationToken authentication
+                    = new UsernamePasswordAuthenticationToken(email, null, authorities);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
-            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
         }
 
         filterChain.doFilter(request, response);
