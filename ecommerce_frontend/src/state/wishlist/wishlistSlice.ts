@@ -26,25 +26,25 @@ export const fetchWishlist = createAsyncThunk(
   }
 );
 
-//ADD TO WISHLIST
+// ADD TO WISHLIST
 export const addToWishlist = createAsyncThunk(
   "wishlist/addToWishlist",
   async (productId: number, { dispatch }) => {
-    await api.post(`/wishlist/${productId}`);
-    // 🔥 instant sync
+    await api.post(`/wishlist/add-product/${productId}`);
     dispatch(fetchWishlist());
   }
 );
 
-//REMOVE FROM WISHLIST
+// REMOVE FROM WISHLIST
 export const removeFromWishlist = createAsyncThunk(
   "wishlist/removeFromWishlist",
   async (productId: number, { dispatch }) => {
-    await api.delete(`/wishlist/${productId}`);
-    // 🔥 instant sync
+    await api.post(`/wishlist/add-product/${productId}`);
     dispatch(fetchWishlist());
   }
 );
+
+
 
 const wishlistSlice = createSlice({
   name: "wishlist",

@@ -38,26 +38,27 @@ export const addToCart = createAsyncThunk(
 );
 
 
-//  REMOVE FROM CART
+// REMOVE FROM CART
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
   async (cartItemId: number, { dispatch }) => {
-    await api.delete(`/cart/remove/${cartItemId}`);
+    await api.delete(`/cart/item/${cartItemId}`);
     dispatch(fetchCart());
   }
 );
 
-//  UPDATE QUANTITY
+// UPDATE QUANTITY
 export const updateCartQuantity = createAsyncThunk(
   "cart/updateQuantity",
   async (
     { cartItemId, quantity }: { cartItemId: number; quantity: number },
     { dispatch }
   ) => {
-    await api.put(`/cart/update/${cartItemId}`, { quantity });
+    await api.put(`/cart/item/${cartItemId}`, { quantity });
     dispatch(fetchCart());
   }
 );
+
 
 const cartSlice = createSlice({
   name: "cart",
