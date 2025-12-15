@@ -9,19 +9,30 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+// ✅ ALL PUBLIC APIs (DO NOT SEND TOKEN)
 const PUBLIC_ROUTES = [
   "/auth",
   "/seller/login",
   "/seller/verify",
+
+  // PUBLIC DATA
+  "/categories",
+  "/deals",
+  "/home-category",
+  "/products",
+  "/reviews",
+  "/search",
 ];
 
 api.interceptors.request.use((config) => {
   const url = config.url || "";
 
+  // If public route → don't attach token
   if (PUBLIC_ROUTES.some((route) => url.startsWith(route))) {
     return config;
   }
 
+  // Protected routes → attach token
   const token = localStorage.getItem("token");
   if (token) {
     config.headers = config.headers || {};
