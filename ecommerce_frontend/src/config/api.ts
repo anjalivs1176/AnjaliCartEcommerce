@@ -24,15 +24,40 @@ const PUBLIC_ROUTES = [
   "/search",
 ];
 
+// api.interceptors.request.use((config) => {
+//   const url = config.url || "";
+
+//   // If public route → don't attach token
+//   if (PUBLIC_ROUTES.some((route) => url.startsWith(route))) {
+//     return config;
+//   }
+
+//   // Protected routes → attach token
+//   const token = localStorage.getItem("token");
+//   if (token) {
+//     config.headers = config.headers || {};
+//     config.headers.Authorization = `Bearer ${token}`;
+//   }
+
+//   return config;
+// });
+
+
+
 api.interceptors.request.use((config) => {
   const url = config.url || "";
 
-  // If public route → don't attach token
-  if (PUBLIC_ROUTES.some((route) => url.startsWith(route))) {
+  // normalize url (remove /api if present)
+  const cleanUrl = url.replace("/api", "");
+
+  const isPublic = PUBLIC_ROUTES.some((route) =>
+    cleanUrl.startsWith(route)
+  );
+
+  if (isPublic) {
     return config;
   }
 
-  // Protected routes → attach token
   const token = localStorage.getItem("token");
   if (token) {
     config.headers = config.headers || {};
@@ -41,5 +66,7 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+
 
 export default api;
