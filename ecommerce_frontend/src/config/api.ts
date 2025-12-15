@@ -4,37 +4,35 @@ const API_URL =
   process.env.REACT_APP_API_URL ??
   "https://anjalicart-backend.onrender.com/api";
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: false, // 🔥 IMPORTANT
 });
 
+// PUBLIC ROUTES (NO TOKEN)
 const PUBLIC_ROUTES = [
   "/auth",
-  "/public",
-  "/home-category",
-  "/deals",
   "/categories",
   "/products",
   "/reviews",
   "/search",
+  "/deals",
+  "/home-category",
 ];
 
 api.interceptors.request.use((config) => {
-  const url = config.url ?? "";
+  const url = config.url || "";
 
- const isPublic = PUBLIC_ROUTES.some(route =>
-  url.startsWith(route)
-);
+  // If public route → don't attach token
+  if (PUBLIC_ROUTES.some((route) => url.startsWith(route))) {
+    return config;
+  }
 
+  const token = localStorage.getItem("token");
 
-  if (!isPublic) {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  } else {
-    delete config.headers.Authorization;
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
   }
 
   return config;
