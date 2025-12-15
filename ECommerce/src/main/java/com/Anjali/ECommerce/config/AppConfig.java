@@ -2,10 +2,8 @@ package com.Anjali.ECommerce.config;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +14,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -28,32 +28,31 @@ public class AppConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // ✅ IMPORTANT: enable cors here
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ✅ PUBLIC ROUTES (NO LOGIN REQUIRED)
+                // ✅ PUBLIC APIs — NO TOKEN REQUIRED
                 .requestMatchers(
-                        "/auth/**",
-                        "/seller/login",
-                        "/seller/verify",
-                        "/categories/**",
-                        "/products/**",
-                        "/reviews/**",
-                        "/search/**",
-                        "/deals/**",
-                        "/home-category/**"
+                        "/api/auth/**",
+                        "/api/login-signup-otp",
+                        "/api/categories/**",
+                        "/api/products/**",
+                        "/api/reviews/**",
+                        "/api/search/**",
+                        "/api/deals/**",
+                        "/api/home-category/**"
                 ).permitAll()
-                // ✅ ROLE BASED
-                .requestMatchers("/seller/**").hasRole("SELLER")
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                // ✅ SELLER
+                .requestMatchers("/api/seller/**").hasRole("ROLE_SELLER")
+                // ✅ ADMIN
+                .requestMatchers("/api/admin/**").hasRole("ROLE_ADMIN")
                 // ✅ EVERYTHING ELSE
                 .anyRequest().authenticated()
                 )
-                // ✅ JWT FILTER
+                // ✅ JWT FILTER (ONLY runs when Authorization header exists)
                 .addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -61,6 +60,7 @@ public class AppConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration cfg = new CorsConfiguration();
 
         cfg.setAllowedOrigins(List.of(
