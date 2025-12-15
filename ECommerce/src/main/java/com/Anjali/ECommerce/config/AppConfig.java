@@ -35,15 +35,15 @@ public class AppConfig {
             )
             .authorizeHttpRequests(auth -> auth
 
-                // PREFLIGHT
+                // ✅ PREFLIGHT
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // AUTH
+                // ✅ AUTH / LOGIN
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/seller/login").permitAll()
                 .requestMatchers("/api/admin/login").permitAll()
 
-                // PUBLIC GET APIs
+                // ✅ PUBLIC GET APIs
                 .requestMatchers(HttpMethod.GET,
                         "/api/public/**",
                         "/api/home-category/**",
@@ -55,7 +55,7 @@ public class AppConfig {
                         "/actuator/**"
                 ).permitAll()
 
-                // CUSTOMER
+                // ✅ CUSTOMER (USER)
                 .requestMatchers(
                         "/api/cart/**",
                         "/api/wishlist/**",
@@ -64,13 +64,15 @@ public class AppConfig {
                         "/api/address/**",
                         "/api/orders/**",
                         "/api/coupons/**"
-                ).hasAuthority("ROLE_CUSTOMER")
+                ).hasAuthority("ROLE_USER")
 
-                // SELLER
-                .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
+                // ✅ SELLER
+                .requestMatchers("/api/seller/**")
+                .hasAuthority("ROLE_SELLER")
 
-                // ADMIN
-                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                // ✅ ADMIN
+                .requestMatchers("/api/admin/**")
+                .hasAuthority("ROLE_ADMIN")
 
                 .anyRequest().authenticated()
             )

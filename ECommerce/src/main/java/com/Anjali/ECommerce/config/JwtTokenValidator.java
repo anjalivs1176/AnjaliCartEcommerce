@@ -38,7 +38,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // ✅ If no token → just continue (public or unauthenticated)
+        // ✅ No token → continue
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -53,23 +53,24 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                     .getBody();
 
             String email = claims.get("email", String.class);
-            String role = claims.get("authorities", String.class);
+            String role = claims.get("role", String.class); // USER / SELLER
+
+            // 🔥 THIS IS THE FIX
+            List<SimpleGrantedAuthority> authorities =
+                    List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
                             email,
                             null,
-                            List.of(new SimpleGrantedAuthority(role))
+                            authorities
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
-    SecurityContextHolder.clearContext();
-    filterChain.doFilter(request, response);
-    return;
-}
-
+            SecurityContextHolder.clearContext();
+        }
 
         filterChain.doFilter(request, response);
     }
