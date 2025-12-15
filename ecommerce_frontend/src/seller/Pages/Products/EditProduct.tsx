@@ -165,7 +165,7 @@ const EditProduct = () => {
       <Divider />
 
       <Grid container spacing={2}>
-        <Grid xs={12} className="flex gap-4 flex-wrap">
+        <Grid size ={{xs:12}} className="flex gap-4 flex-wrap">
           <input
             type="file"
             accept="image/*"
@@ -196,7 +196,7 @@ const EditProduct = () => {
           ))}
         </Grid>
 
-        <Grid xs={12}>
+        <Grid size = {{xs:12}}>
           <Button fullWidth variant="contained" type="submit">
             Update Product
           </Button>
