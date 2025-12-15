@@ -24,23 +24,21 @@ public class AppConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> {})
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth -> auth
-
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> {
+                })
+                .sessionManagement(session
+                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(auth -> auth
                 // PREFLIGHT
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                // AUTH / OTP
+                // AUTH / OTP / LOGIN
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/seller/login").permitAll()
                 .requestMatchers("/api/admin/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/seller").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/api/seller/verify/**").permitAll()
-
                 // PUBLIC GET APIs
                 .requestMatchers(HttpMethod.GET,
                         "/api/public/**",
@@ -53,15 +51,20 @@ public class AppConfig {
                         "/actuator/health",
                         "/actuator/info"
                 ).permitAll()
-
-                // ROLE BASED
+                // ROLE: CUSTOMER (cart, wishlist, user)
+                .requestMatchers(
+                        "/api/cart/**",
+                        "/api/wishlist/**",
+                        "/api/user/**"
+                ).hasAuthority("ROLE_CUSTOMER")
+                // ROLE: ADMIN
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                // ROLE: SELLER
                 .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
-
                 // EVERYTHING ELSE
                 .anyRequest().authenticated()
-            )
-            .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
+                )
+                .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
 
         return http.build();
     }
