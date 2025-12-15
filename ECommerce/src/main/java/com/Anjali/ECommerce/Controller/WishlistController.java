@@ -8,6 +8,7 @@ import com.Anjali.ECommerce.Service.UserService;
 import com.Anjali.ECommerce.Service.WishlistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,37 +20,29 @@ public class WishlistController {
     private final UserService userService;
     private final ProductService productService;
 
-    // Endpoint to get the wishlist of the logged-in user
-    @GetMapping()
-    public ResponseEntity<Wishlist> getWishlistByUserId(
-            @RequestHeader("Authorization") String jwt) throws Exception {
+    private User getCurrentUser() throws Exception {
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        return userService.findUserByEmail(email);
+    }
 
-        // Fetch user from JWT token
-        User user = userService.findUserByJwtToken(jwt);
-
-        // Get wishlist associated with this user
+    @GetMapping
+    public ResponseEntity<Wishlist> getWishlist() throws Exception {
+        User user = getCurrentUser();
         Wishlist wishlist = wishlistService.getWishlistByUserId(user);
-
-        // Return wishlist
         return ResponseEntity.ok(wishlist);
     }
 
-    // Endpoint to add (or toggle) a product in the user's wishlist
     @PostMapping("/add-product/{productId}")
     public ResponseEntity<Wishlist> addProductToWishlist(
-            @PathVariable Long productId,
-            @RequestHeader("Authorization") String jwt) throws Exception {
+            @PathVariable Long productId
+    ) throws Exception {
 
-        // Fetch the product by ID
+        User user = getCurrentUser();
         Product product = productService.findProductById(productId);
 
-        // Fetch the user from JWT token
-        User user = userService.findUserByJwtToken(jwt);
-
-        // Add or remove the product in user's wishlist
-        Wishlist updatedWishlist = wishlistService.addProductToWishlist(user, product);
-
-        // Return the updated wishlist
-        return ResponseEntity.ok(updatedWishlist);
+        Wishlist updated = wishlistService.addProductToWishlist(user, product);
+        return ResponseEntity.ok(updated);
     }
 }
