@@ -17,7 +17,6 @@ import com.Anjali.ECommerce.Repository.VerificationCodeRepository;
 import com.Anjali.ECommerce.Request.LoginRequest;
 import com.Anjali.ECommerce.Service.AuthService;
 import com.Anjali.ECommerce.Service.EmailService;
-import com.Anjali.ECommerce.Service.SellerReportService;
 import com.Anjali.ECommerce.Service.SellerService;
 import com.Anjali.ECommerce.response.AuthResponse;
 
@@ -35,9 +34,8 @@ public class SellerController {
     private final VerificationCodeRepository verificationCodeRepository;
     private final AuthService authService;
     private final EmailService emailService;
-    private final SellerReportService sellerReportService;
 
-    @Value("${frontend.url}")
+    @Value("${FRONTEND_URL}")
     private String frontendUrl;
 
     // ---------------------- LOGIN --------------------------
