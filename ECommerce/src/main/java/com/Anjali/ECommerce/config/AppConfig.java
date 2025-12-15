@@ -12,11 +12,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -29,12 +28,14 @@ public class AppConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                // ✅ IMPORTANT: enable cors here
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ✅ PUBLIC ROUTES FIRST
+                // ✅ PUBLIC ROUTES (NO LOGIN REQUIRED)
                 .requestMatchers(
                         "/auth/**",
                         "/seller/login",
@@ -42,14 +43,18 @@ public class AppConfig {
                         "/categories/**",
                         "/products/**",
                         "/reviews/**",
-                        "/search/**"
+                        "/search/**",
+                        "/deals/**",
+                        "/home-category/**"
                 ).permitAll()
                 // ✅ ROLE BASED
                 .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                // ✅ ALWAYS LAST
+                // ✅ EVERYTHING ELSE
                 .anyRequest().authenticated()
-                );
+                )
+                // ✅ JWT FILTER
+                .addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -57,14 +62,19 @@ public class AppConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
+
         cfg.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "https://anjali-cart.netlify.app"
         ));
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+
+        cfg.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+        ));
+
         cfg.setAllowedHeaders(List.of("*"));
-        cfg.setAllowCredentials(true);
         cfg.setExposedHeaders(List.of("Authorization"));
+        cfg.setAllowCredentials(true);
         cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
