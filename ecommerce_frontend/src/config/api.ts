@@ -9,64 +9,34 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-// ✅ ALL PUBLIC APIs (DO NOT SEND TOKEN)
 const PUBLIC_ROUTES = [
   "/auth",
-  "/seller/login",
-  "/seller/verify",
-
-  // PUBLIC DATA
-  "/categories",
-  "/deals",
+  "/public",
   "/home-category",
+  "/deals",
+  "/categories",
   "/products",
   "/reviews",
   "/search",
 ];
 
-// api.interceptors.request.use((config) => {
-//   const url = config.url || "";
-
-//   // If public route → don't attach token
-//   if (PUBLIC_ROUTES.some((route) => url.startsWith(route))) {
-//     return config;
-//   }
-
-//   // Protected routes → attach token
-//   const token = localStorage.getItem("token");
-//   if (token) {
-//     config.headers = config.headers || {};
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-
-//   return config;
-// });
-
-
-
 api.interceptors.request.use((config) => {
-  const url = config.url || "";
+  const url = config.url ?? "";
 
-  // normalize url (remove /api if present)
-  const cleanUrl = url.replace("/api", "");
-
-  const isPublic = PUBLIC_ROUTES.some((route) =>
-    cleanUrl.startsWith(route)
+  const isPublic = PUBLIC_ROUTES.some(route =>
+    url.includes(route)
   );
 
-  if (isPublic) {
-    return config;
-  }
-
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
+  if (!isPublic) {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } else {
+    delete config.headers.Authorization;
   }
 
   return config;
 });
-
-
 
 export default api;
