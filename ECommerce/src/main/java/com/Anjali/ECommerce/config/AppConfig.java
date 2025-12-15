@@ -34,7 +34,7 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ✅ PUBLIC APIs — NO TOKEN REQUIRED
+                // ✅ PUBLIC
                 .requestMatchers(
                         "/api/auth/**",
                         "/api/login-signup-otp",
@@ -45,14 +45,22 @@ public class AppConfig {
                         "/api/deals/**",
                         "/api/home-category/**"
                 ).permitAll()
+                // ✅ CUSTOMER
+                .requestMatchers(
+                        "/api/orders/**",
+                        "/api/cart/**",
+                        "/api/wishlist/**",
+                        "/api/address/**",
+                        "/api/user/**"
+                ).hasAuthority("ROLE_CUSTOMER")
                 // ✅ SELLER
-                .requestMatchers("/api/seller/**").hasRole("SELLER")
+                .requestMatchers("/api/seller/**")
+                .hasAuthority("ROLE_SELLER")
                 // ✅ ADMIN
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                // ✅ EVERYTHING ELSE
+                .requestMatchers("/api/admin/**")
+                .hasAuthority("ROLE_ADMIN")
                 .anyRequest().authenticated()
                 )
-                // ✅ JWT FILTER (ONLY runs when Authorization header exists)
                 .addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

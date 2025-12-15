@@ -30,7 +30,6 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // ✅ Skip preflight
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
@@ -38,7 +37,6 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // ✅ No token → continue
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -53,27 +51,19 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                     .getBody();
 
             String email = claims.get("email", String.class);
-            String role = claims.get("role", String.class); // USER / SELLER
+            String role = claims.get("role", String.class); // CUSTOMER / SELLER / ADMIN
 
-            // 🔥 THIS IS THE FIX
-            List<SimpleGrantedAuthority> authorities =
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role));
+            SimpleGrantedAuthority authority
+                    = new SimpleGrantedAuthority("ROLE_" + role);
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
+            UsernamePasswordAuthenticationToken authentication
+                    = new UsernamePasswordAuthenticationToken(
                             email,
                             null,
-                            authorities
+                            List.of(authority)
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
-System.out.println(">>> AUTHORITY SEEN BY SPRING = " +
-    SecurityContextHolder.getContext()
-        .getAuthentication()
-        .getAuthorities());
-
 
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
