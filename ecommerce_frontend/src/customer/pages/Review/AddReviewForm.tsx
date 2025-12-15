@@ -10,21 +10,14 @@ const AddReviewForm = ({ productId }: { productId: number }) => {
   const [text, setText] = useState("");
 
   const handleSubmit = () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please login to write a review");
-      return;
-    }
-
     const reviewData = {
       reviewText: text,
       reviewRating: rating ?? 0,
       productImage: [],
     };
 
+    dispatch(addReview({ productId, body: reviewData }));
 
-    dispatch(addReview({ productId, body: reviewData, token }));
     setText("");
     setRating(0);
   };
