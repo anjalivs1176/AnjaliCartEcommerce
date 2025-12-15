@@ -229,7 +229,7 @@ const ProductDetails = () => {
                         : null
                     }
                     onDelete={() =>
-                      dispatch(deleteReview({ reviewId: rev.id, token }))
+                      dispatch(deleteReview(rev.id))
                     }
                   />
                   <hr className="border-gray-200 mt-5" />
