@@ -43,7 +43,7 @@ public class AppConfig {
                         "/api/reviews/**",
                         "/api/search/**",
                         "/api/deals/**",
-                        "/api/home-category/**"
+                        "/api/public/home-category/**"
                 ).permitAll()
                 // ✅ CUSTOMER
                 .requestMatchers(
