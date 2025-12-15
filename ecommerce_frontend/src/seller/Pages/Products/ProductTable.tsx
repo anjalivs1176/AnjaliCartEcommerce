@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import {
@@ -11,17 +10,15 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
-import { Delete } from "@mui/icons-material";
-import { deleteProduct } from "../../../state/seller/sellerProductSlice";
-
+import { Delete, Edit } from "@mui/icons-material";
 import { tableCellClasses } from "@mui/material/TableCell";
-import { Edit } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../../state/store";
 import {
   fetchSellerProducts,
   toggleStock,
+  deleteProduct,
 } from "../../../state/seller/sellerProductSlice";
 import { Product } from "../../../type/productType";
 
@@ -49,23 +46,9 @@ export default function ProductTable() {
   const navigate = useNavigate();
   const { products } = useAppSelector((state) => state.sellerProduct);
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-
-  //   if (!token) {
-  //     console.log("Token not loaded yet, waiting...");
-  //     return;
-  //   }
-
-  //   dispatch(fetchSellerProducts());
-  // }, []);
-
-
   useEffect(() => {
-  dispatch(fetchSellerProducts());
-}, [dispatch]);
-
-
+    dispatch(fetchSellerProducts());
+  }, [dispatch]);
 
   if (!products || products.length === 0) {
     return (
@@ -77,7 +60,7 @@ export default function ProductTable() {
 
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 700 }} aria-label="customized table">
+      <Table sx={{ minWidth: 700 }} aria-label="seller products table">
         <TableHead>
           <TableRow>
             <StyledTableCell>Images</StyledTableCell>
@@ -88,7 +71,6 @@ export default function ProductTable() {
             <StyledTableCell align="right">Stock</StyledTableCell>
             <StyledTableCell align="right">Edit</StyledTableCell>
             <StyledTableCell align="right">Delete</StyledTableCell>
-
           </TableRow>
         </TableHead>
 
@@ -125,31 +107,31 @@ export default function ProductTable() {
               </StyledTableCell>
               <StyledTableCell align="right">{item.color}</StyledTableCell>
 
-              <StyledTableCell align="right">
-                <span
-                  style={{
-                    cursor: "pointer",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    color:
-                      item.stockStatus === "IN_STOCK" ? "green" : "red",
-                  }}
-                  onClick={() => {
-                    const newStatus =
-                      item.stockStatus === "IN_STOCK"
-                        ? "OUT_OF_STOCK"
-                        : "IN_STOCK";
-                    dispatch(
-                      toggleStock({
-                        productId: item.id,
-                        stockStatus: newStatus,
-                      })
-                    );
-                  }}
-                >
-                  {item.stockStatus}
-                </span>
-              </StyledTableCell>
+              {/* ✅ FIXED STOCK TOGGLE */}
+             <StyledTableCell align="right">
+  <span
+    style={{
+      cursor: "pointer",
+      fontWeight: 600,
+      textTransform: "uppercase",
+      color: item.stockStatus === "IN_STOCK" ? "green" : "red",
+    }}
+    onClick={() => {
+      const newStatus =
+        item.stockStatus === "IN_STOCK" ? false : true;
+
+      dispatch(
+        toggleStock({
+          productId: item.id,
+          stockStatus: newStatus, // ✅ boolean
+        })
+      );
+    }}
+  >
+    {item.stockStatus}
+  </span>
+</StyledTableCell>
+
 
               <StyledTableCell align="right">
                 <IconButton
