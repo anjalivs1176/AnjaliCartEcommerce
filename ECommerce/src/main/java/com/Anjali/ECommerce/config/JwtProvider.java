@@ -33,4 +33,23 @@ public class JwtProvider {
                 .signWith(key)
                 .compact();
     }
+
+
+
+public String getEmailFromJwtToken(String jwt) {
+
+    // remove Bearer prefix if present
+    if (jwt.startsWith("Bearer ")) {
+        jwt = jwt.substring(7);
+    }
+
+    Claims claims = Jwts.parserBuilder()
+            .setSigningKey(key)
+            .build()
+            .parseClaimsJws(jwt)
+            .getBody();
+
+    return claims.get("email", String.class);
+}
+
 }
