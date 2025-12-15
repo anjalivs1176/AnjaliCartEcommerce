@@ -35,9 +35,10 @@ public class AppConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
 
-.anyRequest().permitAll()
+
 
             .authorizeHttpRequests(auth -> auth
+.anyRequest().permitAll()
 
                 // ✅ PREFLIGHT
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
