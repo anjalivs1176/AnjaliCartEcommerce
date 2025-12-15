@@ -30,6 +30,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // ✅ Skip preflight
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
@@ -37,6 +38,7 @@ public class JwtTokenValidator extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
+        // ✅ No token → continue
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -51,8 +53,9 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                     .getBody();
 
             String email = claims.get("email", String.class);
-            String role = claims.get("role", String.class); // CUSTOMER
+            String role = claims.get("role", String.class); // USER / SELLER
 
+            // 🔥 THIS IS THE FIX
             List<SimpleGrantedAuthority> authorities =
                     List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
