@@ -17,6 +17,9 @@ const initialState: WishlistState = {
 export const fetchWishlist = createAsyncThunk(
   "wishlist/fetchWishlist",
   async (_, { rejectWithValue }) => {
+    const token = localStorage.getItem("token");
+    if (!token) return [];
+
     try {
       const res = await api.get("/wishlist");
       return res.data;
@@ -25,6 +28,7 @@ export const fetchWishlist = createAsyncThunk(
     }
   }
 );
+
 
 // ADD TO WISHLIST
 export const addToWishlist = createAsyncThunk(

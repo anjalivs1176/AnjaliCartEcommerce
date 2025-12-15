@@ -17,6 +17,9 @@ const initialState: CartState = {
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { rejectWithValue }) => {
+    const token = localStorage.getItem("token");
+    if (!token) return null; // ✅ STOP if not logged in
+
     try {
       const res = await api.get("/cart");
       return res.data;
@@ -25,6 +28,7 @@ export const fetchCart = createAsyncThunk(
     }
   }
 );
+
 
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
@@ -72,9 +76,12 @@ const cartSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
-        state.loading = false;
-        state.cart = action.payload;
-      })
+  state.loading = false;
+  if (action.payload) {
+    state.cart = action.payload;
+  }
+})
+
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
