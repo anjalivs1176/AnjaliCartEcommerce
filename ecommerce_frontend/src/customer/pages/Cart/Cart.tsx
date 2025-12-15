@@ -65,7 +65,7 @@ const Cart = () => {
 
   useEffect(() => {
     fetchCart();
-    fetchCoupons();
+    // fetchCoupons();
   }, []);
 
   return (
