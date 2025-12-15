@@ -31,9 +31,10 @@ import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 interface RequireAuthProps {
-  children: JSX.Element;
+  children: React.ReactNode;
   allowedRoles?: string[];
 }
+
 
 const RequireAuth = ({ children, allowedRoles }: RequireAuthProps) => {
   const token = localStorage.getItem("token");
