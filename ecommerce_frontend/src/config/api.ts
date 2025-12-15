@@ -23,9 +23,10 @@ const PUBLIC_ROUTES = [
 api.interceptors.request.use((config) => {
   const url = config.url ?? "";
 
-  const isPublic = PUBLIC_ROUTES.some(route =>
-    url.includes(route)
-  );
+ const isPublic = PUBLIC_ROUTES.some(route =>
+  url.startsWith(route)
+);
+
 
   if (!isPublic) {
     const token = localStorage.getItem("token");
