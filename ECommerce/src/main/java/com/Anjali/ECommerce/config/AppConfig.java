@@ -31,15 +31,15 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // PREFLIGHT
+                // ---------------- PREFLIGHT ----------------
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // AUTH / OTP / LOGIN
+                // ---------------- AUTH / LOGIN ----------------
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/seller/login").permitAll()
                 .requestMatchers("/api/admin/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/seller").permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/api/seller/verify/**").permitAll()
-                // PUBLIC GET APIs
+                // ---------------- PUBLIC GET APIs ----------------
                 .requestMatchers(HttpMethod.GET,
                         "/api/public/**",
                         "/api/home-category/**",
@@ -51,17 +51,17 @@ public class AppConfig {
                         "/actuator/health",
                         "/actuator/info"
                 ).permitAll()
-                // ROLE: CUSTOMER (cart, wishlist, user)
-                .requestMatchers(
-                        "/api/cart/**",
-                        "/api/wishlist/**",
-                        "/api/user/**"
-                ).hasAuthority("ROLE_CUSTOMER")
-                // ROLE: ADMIN
-                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                // ROLE: SELLER
+                // ---------------- CUSTOMER ----------------
+                .requestMatchers("/api/cart/**").hasAuthority("ROLE_CUSTOMER")
+                .requestMatchers("/api/wishlist/**").hasAuthority("ROLE_CUSTOMER")
+                .requestMatchers("/api/user/**").hasAuthority("ROLE_CUSTOMER")
+                .requestMatchers("/api/address/**").hasAuthority("ROLE_CUSTOMER")
+                .requestMatchers("/api/orders/**").hasAuthority("ROLE_CUSTOMER")
+                // ---------------- SELLER ----------------
                 .requestMatchers("/api/seller/**").hasAuthority("ROLE_SELLER")
-                // EVERYTHING ELSE
+                // ---------------- ADMIN ----------------
+                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                // ---------------- EVERYTHING ELSE ----------------
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class);
