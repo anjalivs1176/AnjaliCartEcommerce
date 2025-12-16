@@ -50,6 +50,20 @@ const ProductDetails = () => {
     dispatch(fetchProductById(Number(productId)));
   }, [productId]);
 
+
+
+useEffect(() => {
+  if (product.product?.id) {
+    dispatch(fetchReviews(product.product.id));
+    checkIfInCart();
+    checkWishlist();
+
+    console.log("SIZES 👉", product.product.sizes);
+  }
+}, [product.product]);
+
+
+
   useEffect(() => {
     if (product.product?.id) {
       dispatch(fetchReviews(product.product.id));
