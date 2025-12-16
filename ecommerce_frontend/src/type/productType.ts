@@ -26,5 +26,6 @@ interface Category{
     categoryId:string;
     parentCategory?:Category;
     level:number;
+    image?: string;
 }
 

@@ -32,7 +32,7 @@ const ProductDetails = () => {
   const authUser = authSlice.user;
 
   const [activeImage, setActiveImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("DEFAULT");
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isInCart, setIsInCart] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
 
@@ -55,6 +55,11 @@ const ProductDetails = () => {
       dispatch(fetchReviews(product.product.id));
       checkIfInCart();
       checkWishlist();
+
+      // ✅ AUTO-SET SIZE (IMPORTANT FIX)
+      if (product.product.sizes) {
+        setSelectedSize(product.product.sizes);
+      }
     }
   }, [product.product]);
 
@@ -83,16 +88,18 @@ const ProductDetails = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!product.product) return;
+    if (!product.product || !selectedSize) return;
 
     try {
       await api.put("/cart/add", {
         productId: product.product.id,
-        size: selectedSize,
+        size: selectedSize, // ✅ FIXED (no DEFAULT)
         quantity,
       });
       setIsInCart(true);
-    } catch {}
+    } catch (err) {
+      console.error("Add to cart failed", err);
+    }
   };
 
   const checkWishlist = async () => {
@@ -113,12 +120,21 @@ const ProductDetails = () => {
     } catch {}
   };
 
+  // ✅ IMAGE FALLBACK
+  const imageSrc =
+    product.product?.images?.[activeImage] ||
+    product.product?.category?.image ||
+    "/placeholder.png";
+
   return (
     <div className="px-5 lg:px-20 pt-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <section className="flex flex-col lg:flex-row gap-5">
           <div className="w-full lg:w-[15%] flex flex-wrap lg:flex-col gap-3">
-            {product.product?.images.map((item, index) => (
+            {(product.product?.images?.length
+              ? product.product.images
+              : [product.product?.category?.image]
+            ).map((item, index) => (
               <img
                 key={index}
                 onClick={handleActiveImage(index)}
@@ -129,10 +145,7 @@ const ProductDetails = () => {
           </div>
 
           <div className="w-full h-full lg:w-[85%]">
-            <img
-              className="w-full rounded-md"
-              src={product.product?.images[activeImage]}
-            />
+            <img className="w-full rounded-md" src={imageSrc} />
           </div>
         </section>
 
@@ -228,9 +241,7 @@ const ProductDetails = () => {
                         ? authUser?.profileImage ?? null
                         : null
                     }
-                    onDelete={() =>
-                      dispatch(deleteReview(rev.id))
-                    }
+                    onDelete={() => dispatch(deleteReview(rev.id))}
                   />
                   <hr className="border-gray-200 mt-5" />
                 </div>
