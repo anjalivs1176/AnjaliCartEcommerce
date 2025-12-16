@@ -19,15 +19,15 @@ import lombok.RequiredArgsConstructor;
 public class CartServiceImpl implements CartService {
 
     // Repository for Cart CRUD operations
-    private final CartRepository  cartRepository;
+    private final CartRepository cartRepository;
 
     // Repository for CartItem CRUD operations
     private final CartItemRepository cartItemRepository;
 
     /**
-     * Add a product to the user's cart.
-     * If the product with the same size already exists, returns the existing cart item.
-     * Otherwise, creates a new cart item and updates prices.
+     * Add a product to the user's cart. If the product with the same size
+     * already exists, returns the existing cart item. Otherwise, creates a new
+     * cart item and updates prices.
      */
     @Override
     public CartItem addCartItem(User user, Product product, String size, int quantity) {
@@ -36,7 +36,7 @@ public class CartServiceImpl implements CartService {
         // Check if the product of same size is already in the cart
         CartItem isPresent = cartItemRepository.findByCartAndProductAndSize(cart, product, size);
 
-        if(isPresent == null){
+        if (isPresent == null) {
             // Create a new cart item
             CartItem cartItem = new CartItem();
             cartItem.setProduct(product);
@@ -53,6 +53,11 @@ public class CartServiceImpl implements CartService {
             cart.getCartItems().add(cartItem);
             cartItem.setCart(cart);
 
+            System.out.println("ADD CART 👉 user=" + user.getId()
+                    + ", product=" + product.getId()
+                    + ", size=" + size
+                    + ", qty=" + quantity);
+
             // Save and return the new cart item
             return cartItemRepository.save(cartItem);
         }
@@ -67,138 +72,77 @@ public class CartServiceImpl implements CartService {
 //     @Override
 // public Cart findUserCart(User user) {
 //     Cart cart = cartRepository.findByUserId(user.getId());
-
 //     double totalMrp = 0.0;
 //     double totalSelling = 0.0;
 //     int totalItem = 0;
-
 //     for (CartItem cartItem : cart.getCartItems()) {
 //         totalMrp += cartItem.getMrpPrice();
 //         totalSelling += cartItem.getSellingPrice();
 //         totalItem += cartItem.getQuantity();
 //     }
-
 //     cart.setTotalMrpPrice(totalMrp);
 //     cart.setTotalSellingPrice(totalSelling);
 //     cart.setTotalItem(totalItem);
-
 //     // Discount Amount in rupees (correct)
 //     double discountAmount = totalMrp - totalSelling;
 //     cart.setDiscount(discountAmount);
-
 //     return cart;
 // }
+    @Override
+    public Cart findUserCart(User user) {
+        Cart cart = cartRepository.findByUserId(user.getId());
 
+        // ⭐ If user has no cart, create a fresh one
+        if (cart == null) {
+            cart = new Cart();
+            cart.setUser(user);
+            cart.setCartItems(new HashSet<>());
+            cart.setTotalMrpPrice(0d);
+            cart.setTotalSellingPrice(0d);
+            cart.setBaseDiscountAmount(0d);
+            cart.setCouponDiscountAmount(0d);
+            cart.setCouponCode(null);
+            cart.setTotalItem(0);
 
+            cart = cartRepository.save(cart);
+        }
 
+        double totalMrp = 0d;
+        double totalSelling = 0d;
+        int totalQty = 0;
 
+        for (CartItem cartItem : cart.getCartItems()) {
+            int itemMrp = (cartItem.getMrpPrice() != null)
+                    ? cartItem.getMrpPrice()
+                    : cartItem.getProduct().getMrpPrice();
 
+            int itemSelling = (cartItem.getSellingPrice() != null)
+                    ? cartItem.getSellingPrice()
+                    : cartItem.getProduct().getSellingPrice();
 
+            totalMrp += itemMrp;
+            totalSelling += itemSelling;
+            totalQty += cartItem.getQuantity();
+        }
 
+        cart.setTotalMrpPrice(totalMrp);
+        cart.setTotalSellingPrice(totalSelling);
+        cart.setTotalItem(totalQty);
 
+        double baseDiscount = totalMrp - totalSelling;
+        if (baseDiscount < 0) {
+            baseDiscount = 0;
+        }
+        cart.setBaseDiscountAmount(baseDiscount);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@Override
-public Cart findUserCart(User user) {
-    Cart cart = cartRepository.findByUserId(user.getId());
-
-    // ⭐ If user has no cart, create a fresh one
-    if (cart == null) {
-        cart = new Cart();
-        cart.setUser(user);
-        cart.setCartItems(new HashSet<>());
-        cart.setTotalMrpPrice(0d);
-        cart.setTotalSellingPrice(0d);
-        cart.setBaseDiscountAmount(0d);
-        cart.setCouponDiscountAmount(0d);
-        cart.setCouponCode(null);
-        cart.setTotalItem(0);
-        
-        cart = cartRepository.save(cart);
+        return cart;
     }
-
-    double totalMrp = 0d;
-    double totalSelling = 0d;
-    int totalQty = 0;
-
-    for (CartItem cartItem : cart.getCartItems()) {
-        int itemMrp = (cartItem.getMrpPrice() != null)
-            ? cartItem.getMrpPrice()
-            : cartItem.getProduct().getMrpPrice();
-
-        int itemSelling = (cartItem.getSellingPrice() != null)
-            ? cartItem.getSellingPrice()
-            : cartItem.getProduct().getSellingPrice();
-
-        totalMrp += itemMrp;
-        totalSelling += itemSelling;
-        totalQty += cartItem.getQuantity();
-    }
-
-    cart.setTotalMrpPrice(totalMrp);
-    cart.setTotalSellingPrice(totalSelling);
-    cart.setTotalItem(totalQty);
-
-    double baseDiscount = totalMrp - totalSelling;
-    if (baseDiscount < 0) baseDiscount = 0;
-    cart.setBaseDiscountAmount(baseDiscount);
-
-    return cart;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Calculate discount percentage from MRP and selling price.
      */
     private int calculateDiscountpercentage(int mrpPrice, int sellingPrice) {
-        if(mrpPrice <= 0){
+        if (mrpPrice <= 0) {
             return 0;
         }
         double discount = mrpPrice - sellingPrice;
