@@ -30,21 +30,23 @@ const Wishlist = () => {
     }
   };
 
-  const handleMoveToCart = async (product: any, e: any) => {
-    e.stopPropagation();
-    try {
-      const body = {
-        productId: product.id,
-        size: product.sizes || "DEFAULT",
-        quantity: 1,
-      };
+const handleMoveToCart = async (product: any, e: any) => {
+  e.stopPropagation();
 
-      await api.put("/cart/add", body);
-      await handleRemove(product.id, e);
-    } catch (err) {
-      console.log("move to cart error:", err);
-    }
-  };
+  try {
+    await api.put("/cart/add", {
+      productId: product.id,
+      size: product.sizes || "DEFAULT",
+      quantity: 1,
+    });
+
+    await api.post(`/wishlist/add-product/${product.id}`);
+    fetchWishlist();
+  } catch (err) {
+    console.log("move to cart error:", err);
+  }
+};
+
 
   return (
     <div className="px-5 lg:px-20 pt-10">

@@ -30,16 +30,21 @@ export const fetchCart = createAsyncThunk(
 );
 
 
-export const addToCart = createAsyncThunk(
-  "cart/addToCart",
-  async (
-    { productId, quantity = 1 }: { productId: number; quantity?: number },
-    { dispatch }
-  ) => {
-    await api.post("/cart/add", { productId, quantity });
-    dispatch(fetchCart());
-  }
-);
+// export const addToCart = createAsyncThunk(
+//   "cart/addToCart",
+//   async (
+//     {
+//       productId,
+//       quantity = 1,
+//       size,
+//     }: { productId: number; quantity?: number; size: string },
+//     { dispatch }
+//   ) => {
+//     await api.put("/cart/add", { productId, quantity, size });
+//     dispatch(fetchCart());
+//   }
+// );
+
 
 
 // REMOVE FROM CART

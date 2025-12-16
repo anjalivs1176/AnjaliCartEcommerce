@@ -87,20 +87,25 @@ const ProductDetails = () => {
     } catch {}
   };
 
-  const handleAddToCart = async () => {
-    if (!product.product || !selectedSize) return;
+const handleAddToCart = async () => {
+  if (!product.product) return;
 
-    try {
-      await api.put("/cart/add", {
-        productId: product.product.id,
-        size: selectedSize,
-        quantity,
-      });
-      setIsInCart(true);
-    } catch (err) {
-      console.error("Add to cart failed", err);
-    }
-  };
+  const sizeToSend =
+    selectedSize || product.product.sizes || "DEFAULT";
+
+  try {
+    await api.put("/cart/add", {
+      productId: product.product.id,
+      size: sizeToSend,
+      quantity,
+    });
+
+    setIsInCart(true);
+  } catch (err) {
+    console.error("Add to cart failed", err);
+  }
+};
+
 
   const checkWishlist = async () => {
     try {
