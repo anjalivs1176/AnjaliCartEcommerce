@@ -47,9 +47,7 @@ const PaymentSuccess = () => {
         Status: <strong>{status}</strong>
       </p>
 
-      <p className="mt-6 text-lg font-medium text-gray-800">
-        Verifying your payment… please wait ❤️
-      </p>
+
     </div>
   );
 };
