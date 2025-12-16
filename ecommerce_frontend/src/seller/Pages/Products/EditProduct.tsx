@@ -1,22 +1,27 @@
-import React, { useEffect, useState } from "react";
 import {
-  Grid,
-  TextField,
+  AddPhotoAlternate,
+  Close
+} from "@mui/icons-material";
+import {
+  Alert,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  IconButton,
   CircularProgress,
   Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Snackbar,
+  TextField
 } from "@mui/material";
-import { AddPhotoAlternate, Close } from "@mui/icons-material";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
-import { uploadToCloudinary } from "../../../Util/uploadToCloudinary";
+import { useParams, useNavigate } from "react-router-dom";
 
 import api from "../../../config/api";
+import { uploadToCloudinary } from "../../../Util/uploadToCloudinary";
 import { useAppDispatch } from "../../../state/store";
 import { updateProduct } from "../../../state/seller/sellerProductSlice";
 
@@ -31,116 +36,104 @@ import { menLevelThree } from "../../../data/category/level3/menLevelThree";
 import { womenLevelThree } from "../../../data/category/level3/womenLevelThree";
 import { furnitureLevelThree } from "../../../data/category/level3/furnitureLevelThree";
 import { electronicsLevelThree } from "../../../data/category/level3/electronicsLevelThree";
+import { Product } from "../../../type/productType";
 
 import { colors } from "../../../data/Filter/color";
 
-const categoryTwo: any = {
+const categoryTwo = {
   men: menLevelTwo,
   women: womenLevelTwo,
   kids: [],
   home_furniture: furnitureLevelTwo,
   beauty: [],
-  electronics: electronicsLevelTwo,
+  electronics: electronicsLevelTwo
 };
 
-const categoryThree: any = {
+const categoryThree = {
   men: menLevelThree,
   women: womenLevelThree,
   kids: [],
   home_furniture: furnitureLevelThree,
   beauty: [],
-  electronics: electronicsLevelThree,
+  electronics: electronicsLevelThree
 };
 
-const EditProduct = () => {
-  const params = useParams<{ productId: string }>();
-  const productId = params.productId ? Number(params.productId) : null;
+const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
 
+const EditProduct = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+const { productId: pid } = useParams<{ productId: string }>();
+const productId = Number(pid);
 
-  const [product, setProduct] = useState<any>(null);
+const [product, setProduct] = useState<Product | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   /* ---------------- FETCH PRODUCT ---------------- */
-  const fetchProduct = async () => {
-    if (!productId) return;
-
-    try {
-      const res = await api.get(`/seller/products/${productId}`);
-      setProduct(res.data);
-    } catch (error) {
-      console.error("❌ Error loading product", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await api.get(`/seller/products/${productId}`);
+        setProduct(res.data);
+      } catch (e) {
+        console.error("Error loading product", e);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchProduct();
   }, [productId]);
 
-  const formik = useFormik({
-    initialValues: {
-      title: "",
-      description: "",
-      mrpPrice: "",
-      sellingPrice: "",
-      colors: "",
-      image: [] as string[],
-      category: "",
-      categoryTwo: "",
-      categoryThree: "",
-      sizes: "",
-    },
+  /* ---------------- FORMIK ---------------- */
+const formik = useFormik({
+  enableReinitialize: true,
+  initialValues: {
+    title: product?.title || "",
+    description: product?.description || "",
+    mrp_price: product?.mrpPrice || "",
+    sellingPrice: product?.sellingPrice || "",
+    colors: product?.color || "",
+    sizes: product?.sizes || "",
+    image: product?.images || [],
+    category:
+      product?.category?.parentCategory?.parentCategory?.categoryId || "",
+    categoryTwo: product?.category?.parentCategory?.categoryId || "",
+    categoryThree: product?.category?.categoryId || ""
+  },
 
-    onSubmit: async (values) => {
-      if (!productId) {
-        alert("Invalid product ID");
-        return;
-      }
+  onSubmit: async (values) => {
+    // ✅ GUARD (important)
+    if (!productId || !values.categoryThree) {
+      alert("Invalid product or category");
+      return;
+    }
 
-      const payload = {
-        title: values.title,
-        description: values.description,
-        mrpPrice: Number(values.mrpPrice),
-        sellingPrice: Number(values.sellingPrice),
-        color: values.colors,
-        images: values.image,
-        sizes: values.sizes,
-        categoryId: values.categoryThree,
-      };
+    // ✅ FIX: convert categoryId to NUMBER
+    const payload = {
+      title: values.title,
+      description: values.description,
+      mrpPrice: Number(values.mrp_price),
+      sellingPrice: Number(values.sellingPrice),
+      color: values.colors,
+      images: values.image,
+      sizes: values.sizes,
+      categoryId: Number(values.categoryThree)
+    };
 
-      await dispatch(updateProduct({ productId, request: payload }));
+    // ✅ productId is number here
+    await dispatch(updateProduct({ productId, request: payload }));
 
-      alert("Product updated successfully!");
-      navigate("/seller/products");
-    },
-  });
+    setSnackbarOpen(true);
+    navigate("/seller/products");
+  }
+});
 
-  useEffect(() => {
-    if (!product) return;
 
-    const mainCat = product.category?.parentCategory?.parentCategory?.categoryId;
-    const subCat = product.category?.parentCategory?.categoryId;
-    const subSubCat = product.category?.categoryId;
-
-    formik.setValues({
-      title: product.title || "",
-      description: product.description || "",
-      mrpPrice: product.mrpPrice || "",
-      sellingPrice: product.sellingPrice || "",
-      colors: product.color || "",
-      image: product.images || [],
-      category: mainCat || "",
-      categoryTwo: subCat || "",
-      categoryThree: subSubCat || "",
-      sizes: product.sizes || "",
-    });
-  }, [product]);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  /* ---------------- IMAGE HANDLERS ---------------- */
+  const handleImageUpload = async (e:any) => {
     if (!e.target.files?.[0]) return;
 
     setUploadingImage(true);
@@ -150,59 +143,160 @@ const EditProduct = () => {
     formik.setFieldValue("image", [...formik.values.image, url]);
   };
 
-  const handleRemoveImage = (index: number) => {
+  const handleRemoveImage = (index:any) => {
     formik.setFieldValue(
       "image",
-      formik.values.image.filter((_, i) => i !== index)
+      formik.values.image.filter((_, i:any) => i !== index)
     );
   };
 
   if (loading) return <p className="p-10 text-center">Loading product…</p>;
 
+  /* ---------------- JSX ---------------- */
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-4 p-4">
-      <h2 className="text-xl font-semibold pb-3">Edit Product</h2>
-      <Divider />
+    <div className="p-4">
+      <form onSubmit={formik.handleSubmit}>
+        <h2 className="text-xl font-semibold mb-3">Edit Product</h2>
+        <Divider className="mb-4" />
 
-      <Grid container spacing={2}>
-        <Grid size ={{xs:12}} className="flex gap-4 flex-wrap">
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            id="fileInput"
-            onChange={handleImageUpload}
-          />
+        <Grid container spacing={2}>
+          {/* IMAGES */}
+          <Grid size={{ xs: 12 }} className="flex flex-wrap gap-4">
+            <input hidden type="file" id="fileInput" onChange={handleImageUpload} />
+            <label htmlFor="fileInput">
+              <div className="w-24 h-24 border rounded flex items-center justify-center cursor-pointer">
+                <AddPhotoAlternate />
+                {uploadingImage && <CircularProgress size={22} />}
+              </div>
+            </label>
 
-          <label htmlFor="fileInput">
-            <div className="w-24 h-24 border rounded-md flex items-center justify-center cursor-pointer">
-              <AddPhotoAlternate />
-              {uploadingImage && <CircularProgress size={24} />}
-            </div>
-          </label>
+            {formik.values.image.map((img:any, i:any) => (
+              <div key={i} className="relative">
+                <img src={img} className="w-24 h-24 object-cover rounded" />
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => handleRemoveImage(i)}
+                  sx={{ position: "absolute", top: 0, right: 0 }}
+                >
+                  <Close fontSize="small" />
+                </IconButton>
+              </div>
+            ))}
+          </Grid>
 
-          {formik.values.image.map((img, index) => (
-            <div key={index} className="relative">
-              <img src={img} className="w-24 h-24 rounded object-cover" />
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => handleRemoveImage(index)}
-                sx={{ position: "absolute", top: 0, right: 0 }}
-              >
-                <Close fontSize="small" />
-              </IconButton>
-            </div>
-          ))}
+          {/* TITLE */}
+          <Grid size={{ xs: 12 }}>
+            <TextField fullWidth label="Title" name="title" value={formik.values.title} onChange={formik.handleChange} />
+          </Grid>
+
+          {/* DESCRIPTION */}
+          <Grid size={{ xs: 12 }}>
+            <TextField fullWidth multiline rows={4} label="Description" name="description" value={formik.values.description} onChange={formik.handleChange} />
+          </Grid>
+
+          {/* PRICES */}
+          <Grid size={{ xs: 6 }}>
+            <TextField fullWidth type="number" label="MRP Price" name="mrp_price" value={formik.values.mrp_price} onChange={formik.handleChange} />
+          </Grid>
+
+          <Grid size={{ xs: 6 }}>
+            <TextField fullWidth type="number" label="Selling Price" name="sellingPrice" value={formik.values.sellingPrice} onChange={formik.handleChange} />
+          </Grid>
+
+          {/* COLOR */}
+          <Grid size={{ xs: 6 }}>
+            <FormControl fullWidth>
+              <InputLabel>Color</InputLabel>
+              <Select name="colors" value={formik.values.colors} onChange={formik.handleChange}>
+                {colors.map((c, i) => (
+                  <MenuItem key={i} value={c.name}>{c.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* SIZE */}
+          <Grid size={{ xs: 6 }}>
+            <FormControl fullWidth>
+              <InputLabel>Size</InputLabel>
+              <Select name="sizes" value={formik.values.sizes} onChange={formik.handleChange}>
+                {sizeOptions.map((s) => (
+                  <MenuItem key={s} value={s}>{s}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* CATEGORY */}
+          <Grid size={{ xs: 4 }}>
+            <FormControl fullWidth>
+              <InputLabel>Category</InputLabel>
+              <Select name="category" value={formik.values.category} onChange={formik.handleChange}>
+                {mainCategory.map((c) => (
+                  <MenuItem key={c.categoryId} value={c.categoryId}>{c.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid size={{ xs: 4 }}>
+            <FormControl fullWidth disabled={!formik.values.category}>
+              <InputLabel>Sub Category</InputLabel>
+              <Select
+  name="categoryTwo"
+  value={formik.values.categoryTwo}
+  onChange={formik.handleChange}
+>
+  {(
+    (categoryTwo as Record<string, any[]>)[formik.values.category] || []
+  ).map((c: any) => (
+    <MenuItem key={c.categoryId} value={c.categoryId}>
+      {c.name}
+    </MenuItem>
+  ))}
+</Select>
+
+            </FormControl>
+          </Grid>
+
+          <Grid size={{ xs: 4 }}>
+            <FormControl fullWidth disabled={!formik.values.categoryTwo}>
+              <InputLabel>Sub Sub Category</InputLabel>
+              <Select
+  name="categoryThree"
+  value={formik.values.categoryThree}
+  onChange={formik.handleChange}
+>
+  {(
+    (categoryThree as Record<string, any[]>)[formik.values.category] || []
+  )
+    .filter((c: any) => c.parentCategoryId === formik.values.categoryTwo)
+    .map((c: any) => (
+      <MenuItem key={c.categoryId} value={c.categoryId}>
+        {c.name}
+      </MenuItem>
+    ))}
+</Select>
+
+            </FormControl>
+          </Grid>
+
+          {/* SUBMIT */}
+          <Grid size={{ xs: 12 }}>
+            <Button fullWidth type="submit" variant="contained">
+              Update Product
+            </Button>
+          </Grid>
         </Grid>
+      </form>
 
-        <Grid size = {{xs:12}}>
-          <Button fullWidth variant="contained" type="submit">
-            Update Product
-          </Button>
-        </Grid>
-      </Grid>
-    </form>
+      <Snackbar open={snackbarOpen} autoHideDuration={3000}>
+        <Alert severity="success" variant="filled">
+          Product Updated Successfully 🎉
+        </Alert>
+      </Snackbar>
+    </div>
   );
 };
 
