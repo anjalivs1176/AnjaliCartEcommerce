@@ -93,7 +93,7 @@ const ProductDetails = () => {
     try {
       await api.put("/cart/add", {
         productId: product.product.id,
-        size: selectedSize, // ✅ FIXED (no DEFAULT)
+        size: selectedSize,
         quantity,
       });
       setIsInCart(true);

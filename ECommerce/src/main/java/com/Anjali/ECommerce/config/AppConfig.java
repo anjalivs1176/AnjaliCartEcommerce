@@ -46,6 +46,8 @@ public class AppConfig {
                         "/api/deals/**",
                         "/api/public/home-category/**"
                 ).permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/cart/add")
+                .hasAuthority("ROLE_CUSTOMER")
                 // ✅ CART (explicit methods)
                 .requestMatchers(HttpMethod.GET, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
                 .requestMatchers(HttpMethod.PUT, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
