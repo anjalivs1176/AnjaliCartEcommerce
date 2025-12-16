@@ -130,8 +130,9 @@ const authSlice = createSlice({
 
         if (token) {
           state.token = token;
-          localStorage.setItem("token", token);    
+          localStorage.setItem("sellerToken", token);
           localStorage.setItem("role", "ROLE_SELLER");
+
         }
       })
       .addCase(loginSeller.rejected, (state, action) => {
