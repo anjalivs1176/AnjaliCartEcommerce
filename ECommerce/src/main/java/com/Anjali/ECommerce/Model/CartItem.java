@@ -14,7 +14,7 @@ public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @ManyToOne
     @JsonIgnore
@@ -25,12 +25,11 @@ public class CartItem {
 
     private String size;
 
-    private int quantity=1;
+    private int quantity = 1;
 
     private Integer mrpPrice;
     private Integer sellingPrice;
 
-    private Long UserId;
-
+    private Long userId;
 
 }
