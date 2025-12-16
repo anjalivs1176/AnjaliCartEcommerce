@@ -78,6 +78,10 @@
 
 
 
+
+
+
+
 import axios from "axios";
 
 const API_URL =
@@ -90,19 +94,36 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  const url = config.url || "";
+
+  // ❌ NEVER attach token to seller login / signup
+  if (
+    url === "/seller/login" ||
+    (url === "/seller" && config.method === "post")
+  ) {
+    return config;
+  }
+
   const sellerToken = localStorage.getItem("sellerToken");
-  const userToken = localStorage.getItem("token");
 
   if (sellerToken) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${sellerToken}`;
-  } else if (userToken) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${userToken}`;
   }
 
   return config;
 });
 
 export default api;
+
+
+
+
+
+
+
+
+
+
+
 
