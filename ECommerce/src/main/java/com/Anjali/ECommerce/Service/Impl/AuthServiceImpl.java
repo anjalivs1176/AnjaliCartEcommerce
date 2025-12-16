@@ -3,6 +3,7 @@ package com.Anjali.ECommerce.Service.Impl;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -73,7 +74,10 @@ public class AuthServiceImpl implements AuthService {
         response.setRole(USER_ROLE.ROLE_SELLER);
         response.setMessage("Login successful");
 
-        return response;
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + token)
+                .body(response)
+                .getBody();
     }
 
     @Override
