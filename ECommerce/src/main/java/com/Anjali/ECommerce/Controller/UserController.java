@@ -4,8 +4,9 @@ import com.Anjali.ECommerce.Model.User;
 import com.Anjali.ECommerce.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -14,16 +15,20 @@ public class UserController {
 
     private final UserService userService;
 
-    // Endpoint to get the profile of the logged-in user
+    // ✅ Get logged-in user profile (NO JWT HERE)
     @GetMapping("/users/profile")
-    public ResponseEntity<User> createUserHandler(
-            @RequestHeader("Authorization") String jwt // JWT token from request header
-    ) throws Exception {
+    public ResponseEntity<User> getUserProfile() throws Exception {
 
-        // Fetch the user associated with the JWT token
-        User user = userService.findUserByJwtToken(jwt);
+        // 🔐 Get authenticated user from SecurityContext
+        Authentication authentication
+                = SecurityContextHolder.getContext().getAuthentication();
 
-        // Return the user object with HTTP 200 OK
+        // JWT subject (email)
+        String email = authentication.getName();
+
+        // Fetch user by email
+        User user = userService.findUserByEmail(email);
+
         return ResponseEntity.ok(user);
     }
 }
