@@ -19,7 +19,7 @@ import com.Anjali.ECommerce.Model.User;
 import com.Anjali.ECommerce.Repository.OrderItemRepositry;
 import com.Anjali.ECommerce.Repository.OrderRepository;
 import com.Anjali.ECommerce.Service.OrderService;
-
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,6 +33,7 @@ public class OrderServiceImpl implements OrderService {
      * Create orders from a user's cart. Groups cart items by seller and creates
      * separate orders for each seller.
      */
+    @Transactional
     @Override
     public Set<Order> createOrder(User user, Address shippingAddress, Cart cart) {
 
