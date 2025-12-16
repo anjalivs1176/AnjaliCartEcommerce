@@ -48,6 +48,7 @@ public class AppConfig {
                         "/api/deals/**",
                         "/api/public/home-category/**",
                         // 🔓 SELLER AUTH (VERY IMPORTANT)
+                        "/api/seller",
                         "/api/seller/login",
                         "/api/seller/verify/**"
                 ).permitAll()

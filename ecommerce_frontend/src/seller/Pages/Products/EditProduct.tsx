@@ -68,7 +68,7 @@ const EditProduct = () => {
     if (!productId) return;
 
     try {
-      const res = await api.get(`/sellers/products/${productId}`);
+      const res = await api.get(`/seller/products/${productId}`);
       setProduct(res.data);
     } catch (error) {
       console.error("❌ Error loading product", error);
