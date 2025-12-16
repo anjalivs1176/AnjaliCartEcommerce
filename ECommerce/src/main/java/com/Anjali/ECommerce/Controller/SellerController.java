@@ -42,7 +42,10 @@ public class SellerController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> loginSeller(@RequestBody LoginRequest req) throws Exception {
         AuthResponse response = authService.loginSeller(req);
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + response.getJwt())
+                .body(response);
     }
 
     // ---------------------- SIGNUP --------------------------
