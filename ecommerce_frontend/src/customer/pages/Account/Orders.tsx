@@ -9,7 +9,7 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/orders"); // interceptor adds token
+      const res = await api.get("/orders/user"); // interceptor adds token
       setOrders(res.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
