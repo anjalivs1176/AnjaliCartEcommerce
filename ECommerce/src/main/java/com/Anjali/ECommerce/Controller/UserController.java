@@ -6,16 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;   // ✅ ADD THIS
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")   
+@RequestMapping("/api/user")   // ✅ this is correct
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/profile")    
+    @GetMapping("/profile")
     public ResponseEntity<User> getProfile(
             @RequestHeader("Authorization") String jwt
     ) throws Exception {
