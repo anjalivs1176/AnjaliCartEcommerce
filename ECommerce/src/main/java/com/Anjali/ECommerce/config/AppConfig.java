@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -45,22 +46,19 @@ public class AppConfig {
                         "/api/deals/**",
                         "/api/public/home-category/**"
                 ).permitAll()
-                // ✅ CUSTOMER
-                // .requestMatchers(
-                //         "/api/orders/**",
-                //         "/api/cart/**",
-                //         "/api/wishlist/**",
-                //         "/api/address/**",
-                //         "/api/user/**"
-                // ).authenticated()
-
+                // ✅ CART (explicit methods)
+                .requestMatchers(HttpMethod.GET, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
+                .requestMatchers(HttpMethod.PUT, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
+                .requestMatchers(HttpMethod.POST, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
+                .requestMatchers(HttpMethod.DELETE, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
+                // ✅ OTHER CUSTOMER ENDPOINTS
                 .requestMatchers(
-                        "/api/cart/**",
                         "/api/orders/**",
                         "/api/wishlist/**",
                         "/api/address/**",
                         "/api/user/**"
                 ).hasAuthority("ROLE_CUSTOMER")
+                // ✅ SELLER
                 .requestMatchers("/api/seller/**")
                 .hasAuthority("ROLE_SELLER")
                 // ✅ ADMIN
