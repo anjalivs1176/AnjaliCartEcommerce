@@ -35,7 +35,7 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // 🔥🔥🔥 THIS IS THE FIX
+                // OPTIONS
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // PUBLIC
                 .requestMatchers(
@@ -46,9 +46,13 @@ public class AppConfig {
                         "/api/reviews/**",
                         "/api/search/**",
                         "/api/deals/**",
-                        "/api/public/home-category/**"
+                        "/api/public/home-category/**",
+                        // SELLER AUTH
+                        "/api/seller/login",
+                        "/api/seller",
+                        "/api/seller/verify/**"
                 ).permitAll()
-                // LOGGED-IN USER (wishlist-style)
+                // CUSTOMER (LOGGED IN)
                 .requestMatchers(
                         "/api/cart/**",
                         "/api/wishlist/**",
@@ -57,11 +61,15 @@ public class AppConfig {
                         "/api/user/**"
                 ).authenticated()
                 // SELLER
-                .requestMatchers("/api/seller/**")
-                .hasAuthority("ROLE_SELLER")
+                .requestMatchers(
+                        "/api/seller/**",
+                        "/api/transactions/seller"
+                ).hasAuthority("ROLE_SELLER")
                 // ADMIN
-                .requestMatchers("/api/admin/**")
-                .hasAuthority("ROLE_ADMIN")
+                .requestMatchers(
+                        "/api/admin/**",
+                        "/api/transactions"
+                ).hasAuthority("ROLE_ADMIN")
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
