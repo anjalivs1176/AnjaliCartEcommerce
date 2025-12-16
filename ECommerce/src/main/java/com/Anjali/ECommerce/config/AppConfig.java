@@ -26,7 +26,7 @@ public class AppConfig {
     private final JwtTokenValidator jwtTokenValidator;
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -35,9 +35,9 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // OPTIONS
+                // ✅ OPTIONS (CORS preflight)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // PUBLIC
+                // 🔓 PUBLIC APIs
                 .requestMatchers(
                         "/api/auth/**",
                         "/api/login-signup-otp",
@@ -47,12 +47,11 @@ public class AppConfig {
                         "/api/search/**",
                         "/api/deals/**",
                         "/api/public/home-category/**",
-                        // SELLER AUTH
+                        // 🔓 SELLER AUTH (VERY IMPORTANT)
                         "/api/seller/login",
-                        "/api/seller",
                         "/api/seller/verify/**"
                 ).permitAll()
-                // CUSTOMER (LOGGED IN)
+                // 👤 CUSTOMER (LOGIN REQUIRED)
                 .requestMatchers(
                         "/api/cart/**",
                         "/api/wishlist/**",
@@ -60,16 +59,19 @@ public class AppConfig {
                         "/api/address/**",
                         "/api/user/**"
                 ).authenticated()
-                // SELLER
+                // 🛍️ SELLER (ROLE_SELLER ONLY)
                 .requestMatchers(
-                        "/api/seller/**",
+                        "/api/seller/products/**",
+                        "/api/seller/orders/**",
+                        "/api/seller/profile/**",
                         "/api/transactions/seller"
                 ).hasAuthority("ROLE_SELLER")
-                // ADMIN
+                // 👑 ADMIN
                 .requestMatchers(
                         "/api/admin/**",
                         "/api/transactions"
                 ).hasAuthority("ROLE_ADMIN")
+                // 🔒 EVERYTHING ELSE
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
@@ -78,7 +80,7 @@ public class AppConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration cfg = new CorsConfiguration();
 
@@ -102,7 +104,7 @@ public class AppConfig {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
