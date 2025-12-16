@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -35,7 +34,7 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ✅ PUBLIC
+                // ✅ PUBLIC APIs
                 .requestMatchers(
                         "/api/auth/**",
                         "/api/login-signup-otp",
@@ -46,24 +45,18 @@ public class AppConfig {
                         "/api/deals/**",
                         "/api/public/home-category/**"
                 ).permitAll()
-                .requestMatchers(HttpMethod.PUT, "/api/cart/add")
-                .hasAuthority("ROLE_CUSTOMER")
-                // ✅ CART (explicit methods)
-                .requestMatchers(HttpMethod.GET, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
-                .requestMatchers(HttpMethod.PUT, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
-                .requestMatchers(HttpMethod.POST, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
-                .requestMatchers(HttpMethod.DELETE, "/api/cart/**").hasAuthority("ROLE_CUSTOMER")
-                // ✅ OTHER CUSTOMER ENDPOINTS
+                // ✅ LOGGED-IN USER APIs (wishlist-style)
                 .requestMatchers(
-                        "/api/orders/**",
+                        "/api/cart/**",
                         "/api/wishlist/**",
+                        "/api/orders/**",
                         "/api/address/**",
                         "/api/user/**"
-                ).hasAuthority("ROLE_CUSTOMER")
-                // ✅ SELLER
+                ).authenticated()
+                // ✅ SELLER APIs
                 .requestMatchers("/api/seller/**")
                 .hasAuthority("ROLE_SELLER")
-                // ✅ ADMIN
+                // ✅ ADMIN APIs
                 .requestMatchers("/api/admin/**")
                 .hasAuthority("ROLE_ADMIN")
                 .anyRequest().authenticated()
