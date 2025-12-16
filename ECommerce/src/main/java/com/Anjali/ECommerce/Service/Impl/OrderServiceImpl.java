@@ -37,6 +37,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Set<Order> createOrder(User user, Address shippingAddress, Cart cart) {
 
+        if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+            throw new RuntimeException("Cart is empty, cannot place order");
+        }
+
+        cart.getCartItems().size();
+
+        System.out.println("CHECKOUT 👉 cart items = " + cart.getCartItems().size());
+
         // -----------------------------------------
         // ADD SHIPPING ADDRESS TO USER IF NEW
         // -----------------------------------------
