@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,7 +35,9 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ✅ PUBLIC APIs
+                // 🔥🔥🔥 THIS IS THE FIX
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // PUBLIC
                 .requestMatchers(
                         "/api/auth/**",
                         "/api/login-signup-otp",
@@ -45,7 +48,7 @@ public class AppConfig {
                         "/api/deals/**",
                         "/api/public/home-category/**"
                 ).permitAll()
-                // ✅ LOGGED-IN USER APIs (wishlist-style)
+                // LOGGED-IN USER (wishlist-style)
                 .requestMatchers(
                         "/api/cart/**",
                         "/api/wishlist/**",
@@ -53,10 +56,10 @@ public class AppConfig {
                         "/api/address/**",
                         "/api/user/**"
                 ).authenticated()
-                // ✅ SELLER APIs
+                // SELLER
                 .requestMatchers("/api/seller/**")
                 .hasAuthority("ROLE_SELLER")
-                // ✅ ADMIN APIs
+                // ADMIN
                 .requestMatchers("/api/admin/**")
                 .hasAuthority("ROLE_ADMIN")
                 .anyRequest().authenticated()
