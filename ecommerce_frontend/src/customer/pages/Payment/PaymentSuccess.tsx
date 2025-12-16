@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
-import { useSearchParams, useParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../../../config/api";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
-  const { paymentOrderId } = useParams();
   const [query] = useSearchParams();
 
   const paymentId = query.get("razorpay_payment_id");
@@ -12,13 +11,14 @@ const PaymentSuccess = () => {
   const status = query.get("razorpay_payment_link_status");
 
   useEffect(() => {
-    if (!paymentId || !linkId) return;
+    if (!paymentId || !linkId || status !== "paid") return;
 
     const confirmPayment = async () => {
       try {
-        await api.get(
-          `/payment/${paymentId}?paymentLinkId=${linkId}`
-        );
+        await api.post("/payment/verify", {
+          paymentId,
+          paymentLinkId: linkId,
+        });
 
         setTimeout(() => navigate("/account/orders"), 2000);
       } catch (err) {
@@ -27,7 +27,7 @@ const PaymentSuccess = () => {
     };
 
     confirmPayment();
-  }, [paymentId, linkId, navigate]);
+  }, [paymentId, linkId, status, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center h-[70vh] text-center">
