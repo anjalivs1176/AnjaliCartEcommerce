@@ -46,13 +46,21 @@ public class AppConfig {
                         "/api/public/home-category/**"
                 ).permitAll()
                 // ✅ CUSTOMER
+                // .requestMatchers(
+                //         "/api/orders/**",
+                //         "/api/cart/**",
+                //         "/api/wishlist/**",
+                //         "/api/address/**",
+                //         "/api/user/**"
+                // ).authenticated()
+
                 .requestMatchers(
-                        "/api/orders/**",
                         "/api/cart/**",
+                        "/api/orders/**",
                         "/api/wishlist/**",
                         "/api/address/**",
                         "/api/user/**"
-                ).authenticated()
+                ).hasAuthority("ROLE_CUSTOMER")
                 .requestMatchers("/api/seller/**")
                 .hasAuthority("ROLE_SELLER")
                 // ✅ ADMIN
