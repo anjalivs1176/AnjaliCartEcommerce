@@ -65,7 +65,7 @@ public class Seller {
      * 🔐 Role stored as TINYINT in DB 0 → ROLE_SELLER 1 → ROLE_ADMIN (if ever
      * used)
      */
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private USER_ROLE role = USER_ROLE.ROLE_SELLER;
 
