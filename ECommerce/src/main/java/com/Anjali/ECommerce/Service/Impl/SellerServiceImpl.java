@@ -149,4 +149,9 @@ public class SellerServiceImpl implements SellerService {
         return sellerRepository.findByAccountStatus(status);
     }
 
+    @Override
+    public boolean existsByEmail(String email) {
+        return sellerRepository.existsByEmail(email);
+    }
+
 }

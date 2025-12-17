@@ -1,5 +1,11 @@
 package com.Anjali.ECommerce.Controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.Anjali.ECommerce.Domain.USER_ROLE;
 import com.Anjali.ECommerce.Request.LoginOtpRequest;
 import com.Anjali.ECommerce.Request.LoginRequest;
@@ -7,9 +13,8 @@ import com.Anjali.ECommerce.Service.AuthService;
 import com.Anjali.ECommerce.response.ApiResponse;
 import com.Anjali.ECommerce.response.AuthResponse;
 import com.Anjali.ECommerce.response.SignupRequest;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,7 +41,7 @@ public class AuthController {
     // ---------------- SEND OTP ----------------
     @PostMapping("/send/login-signup-otp")
     public ResponseEntity<ApiResponse> sendOtpHandler(
-            @RequestBody LoginOtpRequest req) {
+            @RequestBody LoginOtpRequest req) throws Exception {
 
         authService.sendLoginAndSignupOtp(
                 req.getEmail(),
