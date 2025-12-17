@@ -2,20 +2,41 @@ import React, { useEffect, useState } from "react";
 import { homeApi } from "../../../services/homeApi";
 
 const CategoryGrid = () => {
+
+const [loading, setLoading] = useState(true);
+
+
   const [items, setItems] = useState<any[]>([]);
 
-  const fetchHomeCategories = async () => {
-    try {
-      const res = await homeApi.getHomeCategories();
-      setItems(res.data.slice(0, 6)); 
-    } catch (err) {
-      console.log("HOME CATEGORIES ERROR:", err);
-    }
-  };
+const fetchHomeCategories = async () => {
+  try {
+    const res = await homeApi.getHomeCategories();
+    setItems(res.data.slice(0, 6));
+  } catch (err) {
+    console.log("HOME CATEGORIES ERROR:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchHomeCategories();
   }, []);
+
+  if (loading) {
+  return (
+    <div className="grid gap-4 grid-rows-12 grid-cols-12 lg:h-[600px] px-5 lg:px-20">
+      {[1,2,3,4,5,6].map(i => (
+        <div
+          key={i}
+          className="bg-gray-200 animate-pulse rounded-md col-span-4 row-span-6"
+        />
+      ))}
+    </div>
+  );
+}
+
 
   return (
     <div className="grid gap-4 grid-rows-12 grid-cols-12 lg:h-[600px] px-5 lg:px-20">

@@ -82,22 +82,24 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String sendLoginAndSignupOtp(String email, USER_ROLE role) {
+    public String sendLoginAndSignupOtp(String email, String flow) {
 
-        // Check if user exists
-        User user = userRepository.findByEmail(email);
+        boolean userExists = userRepository.existsByEmail(email);
 
-        if (user == null) {
-            user = new User();
-            user.setEmail(email);
-            user.setRole(role);
-            userRepository.save(user);
+        // ❌ SIGNUP: user already exists
+        if ("SIGNUP".equalsIgnoreCase(flow) && userExists) {
+            throw new RuntimeException("User already exists");
+        }
+
+        // ❌ LOGIN: user not registered
+        if ("LOGIN".equalsIgnoreCase(flow) && !userExists) {
+            throw new RuntimeException("User not registered");
         }
 
         // Delete old OTP
         verificationCodeRepository.deleteByEmail(email);
 
-        // Generate new OTP
+        // Generate OTP
         String otp = OtpUtil.generateOtp();
 
         VerificationCode vc = new VerificationCode();
@@ -105,17 +107,13 @@ public class AuthServiceImpl implements AuthService {
         vc.setOtp(otp);
         verificationCodeRepository.save(vc);
 
-        // Send email safely
-        try {
-            emailService.sendVerificationOtpEmail(
-                    email,
-                    otp,
-                    "AnjaliCart Login/Signup OTP",
-                    "Your OTP is: " + otp
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to send OTP email", e);
-        }
+        // Send OTP email
+        emailService.sendVerificationOtpEmail(
+                email,
+                otp,
+                "AnjaliCart OTP",
+                "Your OTP is: " + otp
+        );
 
         return "OTP sent";
     }

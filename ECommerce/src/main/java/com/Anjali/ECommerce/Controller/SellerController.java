@@ -8,7 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.Anjali.ECommerce.Domain.AccountStatus;
 import com.Anjali.ECommerce.Model.Seller;
@@ -53,6 +60,10 @@ public class SellerController {
     public ResponseEntity<Seller> createSeller(@RequestBody Seller seller)
             throws Exception, MessagingException {
 
+        if (sellerService.existsByEmail(seller.getEmail())) {
+            throw new RuntimeException("Seller already exists");
+        }
+
         Seller savedSeller = sellerService.createSeller(seller);
 
         // Generate OTP
@@ -67,7 +78,6 @@ public class SellerController {
         // Encode email for URL
         String encodedEmail = URLEncoder.encode(savedSeller.getEmail(), StandardCharsets.UTF_8);
 
-        // ✅ Production-safe frontend URL
         String verifyUrl = frontendUrl + "/verify-seller/" + encodedEmail + "/" + otp;
 
         String subject = "AnjaliCart Seller Email Verification";
@@ -88,45 +98,40 @@ public class SellerController {
             @PathVariable String otp) {
 
         try {
-            log.info("Verifying seller email={} otp={}", email, otp);
-
             var codes = verificationCodeRepository.findByEmail(email);
 
             if (codes == null || codes.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("error", "No OTP found for this email"));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "No OTP found"));
             }
 
-            // Use latest OTP
             VerificationCode code = codes.get(codes.size() - 1);
 
             if (!otp.equals(code.getOtp())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                return ResponseEntity.badRequest()
                         .body(Map.of("error", "Invalid OTP"));
             }
 
             Seller seller = sellerService.getSellerByEmail(email);
+
             if (seller == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "Seller not found"));
             }
 
-            // Activate account
             seller.setEmailVerified(true);
             seller.setAccountStatus(AccountStatus.ACTIVE);
 
-            // Clean OTPs
             verificationCodeRepository.deleteByEmail(email);
 
             return ResponseEntity.ok(Map.of(
-                    "message", "Email verified successfully",
+                    "message", "Seller verified successfully",
                     "sellerId", seller.getId()
             ));
 
         } catch (Exception e) {
-            log.error("Seller email verification failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Server error while verifying email"));
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
