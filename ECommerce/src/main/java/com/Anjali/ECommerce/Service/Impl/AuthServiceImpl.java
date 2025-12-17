@@ -86,17 +86,23 @@ public class AuthServiceImpl implements AuthService {
 
         boolean userExists = userRepository.existsByEmail(email);
 
-        // ❌ SIGNUP: user already exists
+        // 🔥 BACKEND DECIDES FLOW — NOT FRONTEND
+        if (userExists) {
+            flow = "LOGIN";
+        } else {
+            flow = "SIGNUP";
+        }
+
+        // Validation (now correct)
         if ("SIGNUP".equalsIgnoreCase(flow) && userExists) {
             throw new RuntimeException("User already exists");
         }
 
-        // ❌ LOGIN: user not registered
         if ("LOGIN".equalsIgnoreCase(flow) && !userExists) {
             throw new RuntimeException("User not registered");
         }
 
-        // Delete old OTP
+        // Clear old OTP
         verificationCodeRepository.deleteByEmail(email);
 
         // Generate OTP
@@ -107,7 +113,6 @@ public class AuthServiceImpl implements AuthService {
         vc.setOtp(otp);
         verificationCodeRepository.save(vc);
 
-        // Send OTP email
         emailService.sendVerificationOtpEmail(
                 email,
                 otp,
