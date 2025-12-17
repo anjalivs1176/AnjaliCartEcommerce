@@ -35,11 +35,12 @@ public class AppConfig {
                         -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                // ✅ OPTIONS (CORS preflight)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // 🔓 PUBLIC APIs
                 .requestMatchers(
                         "/api/auth/**",
+                        "/api/auth/send/login-signup-otp",
+                        "/api/auth/signup",
+                        "/api/auth/signing",
                         "/api/login-signup-otp",
                         "/api/categories/**",
                         "/api/products/**",
@@ -47,12 +48,11 @@ public class AppConfig {
                         "/api/search/**",
                         "/api/deals/**",
                         "/api/public/home-category/**",
-                        // 🔓 SELLER AUTH (VERY IMPORTANT)
                         "/api/seller",
                         "/api/seller/login",
                         "/api/seller/verify/**"
                 ).permitAll()
-                // 👤 CUSTOMER (LOGIN REQUIRED)
+                //  CUSTOMER (LOGIN REQUIRED)
                 .requestMatchers(
                         "/api/cart/**",
                         "/api/wishlist/**",
@@ -60,19 +60,19 @@ public class AppConfig {
                         "/api/address/**",
                         "/api/user/**"
                 ).authenticated()
-                // 🛍️ SELLER (ROLE_SELLER ONLY)
+                // SELLER (ROLE_SELLER ONLY)
                 .requestMatchers(
                         "/api/seller/products/**",
                         "/api/seller/orders/**",
                         "/api/seller/profile/**",
                         "/api/transactions/seller"
                 ).hasAuthority("ROLE_SELLER")
-                // 👑 ADMIN
+                // ADMIN
                 .requestMatchers(
                         "/api/admin/**",
                         "/api/transactions"
                 ).hasAuthority("ROLE_ADMIN")
-                // 🔒 EVERYTHING ELSE
+                // EVERYTHING ELSE
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtTokenValidator, UsernamePasswordAuthenticationFilter.class);
