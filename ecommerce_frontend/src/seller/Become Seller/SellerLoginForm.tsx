@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import { useAppDispatch, useAppSelector } from "../../state/store";
-import { loginSeller, clearSellerError } from "../../state/AuthSlice";
+import { loginSeller, clearAuthError } from "../../state/AuthSlice";
 import { useNavigate } from "react-router-dom";
 import { fetchSellerProfile } from "../../state/seller/sellerProfileSlice";
 
@@ -24,7 +24,7 @@ const SellerLoginForm = () => {
 
   const handleChange = (e: any) => {
     formik.handleChange(e);
-    dispatch(clearSellerError());
+    dispatch(clearAuthError());
   };
 
  useEffect(() => {
