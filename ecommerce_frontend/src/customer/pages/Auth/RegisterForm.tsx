@@ -17,7 +17,8 @@ const RegisterForm = () => {
     try {
       await api.post("/auth/send/login-signup-otp", {
         email,
-        role: "ROLE_CUSTOMER"
+        flow: "SIGNUP"
+        // role: "ROLE_CUSTOMER"
       });
 
       setOtpSent(true);
