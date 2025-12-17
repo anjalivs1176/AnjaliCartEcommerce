@@ -43,14 +43,17 @@ public class AuthController {
     public ResponseEntity<ApiResponse> sendOtpHandler(
             @RequestBody LoginOtpRequest req) throws Exception {
 
-        authService.sendLoginAndSignupOtp(
-                req.getEmail(),
-                req.getFlow()
-        );
+        String flow = req.getFlow();
+
+        if (flow == null || flow.isBlank()) {
+            // frontend sends role instead of flow
+            flow = "SIGNUP";
+        }
+
+        authService.sendLoginAndSignupOtp(req.getEmail(), flow);
 
         ApiResponse res = new ApiResponse();
         res.setMessage("OTP sent successfully");
-
         return ResponseEntity.ok(res);
     }
 
@@ -59,7 +62,6 @@ public class AuthController {
     public ResponseEntity<AuthResponse> loginHandler(
             @RequestBody LoginRequest req) throws Exception {
 
-        AuthResponse authResponse = authService.signing(req);
-        return ResponseEntity.ok(authResponse);
+        return ResponseEntity.ok(authService.signing(req));
     }
 }

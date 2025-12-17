@@ -122,20 +122,18 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public String createUser(SignupRequest req) throws Exception {
 
-        // Accept that repository may return multiple; pick latest if list
         List<VerificationCode> vcs = verificationCodeRepository.findByEmail(req.getEmail());
-        VerificationCode vc = (vcs == null || vcs.isEmpty()) ? null : vcs.get(vcs.size() - 1);
+        VerificationCode vc = (vcs == null || vcs.isEmpty())
+                ? null
+                : vcs.get(vcs.size() - 1);
 
         if (vc == null || !vc.getOtp().equals(req.getOtp())) {
             throw new Exception("Invalid OTP");
         }
 
-        // Delete OTP(s)
-        verificationCodeRepository.deleteByEmail(req.getEmail());
-
         User user = userRepository.findByEmail(req.getEmail());
-        if (user == null) {
 
+        if (user == null) {
             User newUser = new User();
             newUser.setEmail(req.getEmail());
             newUser.setName(req.getName());
@@ -150,9 +148,13 @@ public class AuthServiceImpl implements AuthService {
             cartRepository.save(cart);
         }
 
+        // 🔥 OTP deletion AFTER successful save
+        verificationCodeRepository.deleteByEmail(req.getEmail());
+
         Authentication auth = new UsernamePasswordAuthenticationToken(
-                req.getEmail(), null,
-                List.of(new SimpleGrantedAuthority(USER_ROLE.ROLE_CUSTOMER.toString()))
+                req.getEmail(),
+                null,
+                List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"))
         );
 
         return jwtProvider.generateToken(auth);
