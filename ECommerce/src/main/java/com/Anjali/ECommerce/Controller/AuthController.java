@@ -41,13 +41,12 @@ public class AuthController {
     // ---------------- SEND OTP ----------------
     @PostMapping("/send/login-signup-otp")
     public ResponseEntity<ApiResponse> sendOtpHandler(
-            @RequestBody LoginOtpRequest req) throws Exception {
+            @RequestBody LoginOtpRequest req) throws Exception{
 
         String flow = req.getFlow();
 
         if (flow == null || flow.isBlank()) {
-            // frontend sends role instead of flow
-            flow = "SIGNUP";
+            throw new RuntimeException("Invalid auth flow");
         }
 
         authService.sendLoginAndSignupOtp(req.getEmail(), flow);
