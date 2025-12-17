@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import SellerAccountForm from './SellerAccountForm';
 import SellerLoginForm from './SellerLoginForm';
 import { Button } from '@mui/material';
+import { Link } from "react-router-dom";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+
 
 const BecomeSeller = () => {
     const [isLogin, setIsLogin] = useState(false);
@@ -13,6 +16,15 @@ const BecomeSeller = () => {
     return (
         <div className="min-h-screen flex justify-center items-center px-4">
             <section className="w-full sm:w-[450px] p-10 shadow-lg rounded-md bg-white">
+
+                <Link
+                    to="/"
+                    className="flex items-center gap-1 text-sm font-medium text-primary-color mb-6"
+                    >
+                    <ArrowBackIosNewIcon sx={{ fontSize: 16 }} />
+                    Back to Home
+                </Link>
+
 
                 {isLogin ? <SellerAccountForm /> : <SellerLoginForm />}
                 <div className="mt-10">

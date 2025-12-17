@@ -27,7 +27,7 @@ public class CartController {
     private final UserService userService;
     private final ProductService productService;
 
-    // ✅ Get logged-in user
+    // Get logged-in user
     private User getCurrentUser() throws Exception {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()

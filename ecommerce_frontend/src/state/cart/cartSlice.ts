@@ -18,7 +18,7 @@ export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
   async (_, { rejectWithValue }) => {
     const token = localStorage.getItem("token");
-    if (!token) return null; // ✅ STOP if not logged in
+    if (!token) return null; 
 
     try {
       const res = await api.get("/cart");
@@ -28,24 +28,6 @@ export const fetchCart = createAsyncThunk(
     }
   }
 );
-
-
-// export const addToCart = createAsyncThunk(
-//   "cart/addToCart",
-//   async (
-//     {
-//       productId,
-//       quantity = 1,
-//       size,
-//     }: { productId: number; quantity?: number; size: string },
-//     { dispatch }
-//   ) => {
-//     await api.put("/cart/add", { productId, quantity, size });
-//     dispatch(fetchCart());
-//   }
-// );
-
-
 
 // REMOVE FROM CART
 export const removeFromCart = createAsyncThunk(

@@ -11,7 +11,7 @@ const UserDetails = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/user/profile"); // interceptor adds token
+      const res = await api.get("/user/profile"); 
       setUser(res.data);
     } catch (error) {
       console.error("Profile fetch error:", error);

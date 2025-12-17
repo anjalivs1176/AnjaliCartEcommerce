@@ -19,16 +19,6 @@ const BecomeSellerFormStep2 = ({ formik }: any) => {
         <Grid size={{ xs: 6 }}>
           <TextField
             fullWidth
-            name="pickupAddress.mobile"
-            label="Mobile"
-            value={formik.values.pickupAddress.mobile}
-            onChange={formik.handleChange}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 6 }}>
-          <TextField
-            fullWidth
             name="pickupAddress.pinCode"
             label="PIN Code"
             value={formik.values.pickupAddress.pinCode}

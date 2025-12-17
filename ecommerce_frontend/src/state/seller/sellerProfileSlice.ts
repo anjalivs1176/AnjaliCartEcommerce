@@ -1,11 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../config/api";
 
-/* =========================
-   THUNKS
-========================= */
-
-// ✅ FETCH SELLER PROFILE
 export const fetchSellerProfile = createAsyncThunk(
   "seller/fetchSellerProfile",
   async (_, { rejectWithValue }) => {
@@ -21,12 +16,11 @@ export const fetchSellerProfile = createAsyncThunk(
   }
 );
 
-// ✅ UPDATE SELLER PROFILE
+
 export const updateSellerProfile = createAsyncThunk(
   "seller/updateSellerProfile",
   async (updateData: any, { rejectWithValue }) => {
     try {
-      // ❌ no manual token, interceptor handles it
       const response = await api.patch(
         "/seller/profile/update",
         updateData
@@ -40,9 +34,6 @@ export const updateSellerProfile = createAsyncThunk(
   }
 );
 
-/* =========================
-   SLICE
-========================= */
 
 interface SellerState {
   seller: any;

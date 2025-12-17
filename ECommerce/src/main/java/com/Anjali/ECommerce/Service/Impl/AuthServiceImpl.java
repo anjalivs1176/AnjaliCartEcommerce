@@ -86,14 +86,12 @@ public class AuthServiceImpl implements AuthService {
 
         boolean userExists = userRepository.existsByEmail(email);
 
-        // 🔥 BACKEND DECIDES FLOW — NOT FRONTEND
         if (userExists) {
             flow = "LOGIN";
         } else {
             flow = "SIGNUP";
         }
 
-        // Validation (now correct)
         if ("SIGNUP".equalsIgnoreCase(flow) && userExists) {
             throw new RuntimeException("User already exists");
         }
@@ -153,7 +151,7 @@ public class AuthServiceImpl implements AuthService {
             cartRepository.save(cart);
         }
 
-        // 🔥 OTP deletion AFTER successful save
+        //OTP deletion AFTER successful save
         verificationCodeRepository.deleteByEmail(req.getEmail());
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
@@ -185,7 +183,6 @@ public class AuthServiceImpl implements AuthService {
         String rolename = authorities.iterator().next().getAuthority();
         authResponse.setRole(USER_ROLE.valueOf(rolename));
 
-        // attempt to set name from User first, then Seller
         User userObj = userRepository.findByEmail(username);
         if (userObj != null) {
             authResponse.setName(userObj.getName());
@@ -194,7 +191,7 @@ public class AuthServiceImpl implements AuthService {
             if (sellerObj != null) {
                 authResponse.setName(sellerObj.getSellerName());
             } else {
-                authResponse.setName(""); // fallback
+                authResponse.setName("");
             }
         }
 
@@ -206,11 +203,10 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails = null;
         String roleName = null;
 
-        // 1) Load CUSTOMER from User table (DO NOT use UserDetailsService)
         User user = userRepository.findByEmail(username);
 
         if (user != null) {
-            roleName = user.getRole().toString();   // This gives ROLE_CUSTOMER
+            roleName = user.getRole().toString();
             userDetails = org.springframework.security.core.userdetails.User
                     .withUsername(username)
                     .password("")
@@ -218,7 +214,6 @@ public class AuthServiceImpl implements AuthService {
                     .build();
         }
 
-        // 2) Try loading SELLER
         if (userDetails == null) {
             Seller seller = sellerRepository.findByEmail(username);
             if (seller != null) {
@@ -235,7 +230,6 @@ public class AuthServiceImpl implements AuthService {
             throw new BadCredentialsException("Invalid username");
         }
 
-        // OTP check
         List<VerificationCode> codes = verificationCodeRepository.findByEmail(username);
         VerificationCode vc = (codes == null || codes.isEmpty()) ? null : codes.get(codes.size() - 1);
 
@@ -245,7 +239,6 @@ public class AuthServiceImpl implements AuthService {
 
         verificationCodeRepository.deleteByEmail(username);
 
-        // 3) ALWAYS GIVE ROLE HERE
         List<GrantedAuthority> authorities
                 = AuthorityUtils.createAuthorityList(roleName);
 

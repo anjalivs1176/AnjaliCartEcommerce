@@ -69,30 +69,11 @@ public class CartServiceImpl implements CartService {
     /**
      * Find the user's cart and update total prices, total items, and discount.
      */
-//     @Override
-// public Cart findUserCart(User user) {
-//     Cart cart = cartRepository.findByUserId(user.getId());
-//     double totalMrp = 0.0;
-//     double totalSelling = 0.0;
-//     int totalItem = 0;
-//     for (CartItem cartItem : cart.getCartItems()) {
-//         totalMrp += cartItem.getMrpPrice();
-//         totalSelling += cartItem.getSellingPrice();
-//         totalItem += cartItem.getQuantity();
-//     }
-//     cart.setTotalMrpPrice(totalMrp);
-//     cart.setTotalSellingPrice(totalSelling);
-//     cart.setTotalItem(totalItem);
-//     // Discount Amount in rupees (correct)
-//     double discountAmount = totalMrp - totalSelling;
-//     cart.setDiscount(discountAmount);
-//     return cart;
-// }
     @Override
     public Cart findUserCart(User user) {
         Cart cart = cartRepository.findByUserId(user.getId());
 
-        // ⭐ If user has no cart, create a fresh one
+        //If user has no cart, create a fresh one
         if (cart == null) {
             cart = new Cart();
             cart.setUser(user);

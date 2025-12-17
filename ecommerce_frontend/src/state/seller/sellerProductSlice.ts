@@ -2,11 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../config/api";
 import { Product } from "../../type/productType";
 
-/* =========================
-   THUNKS
-========================= */
 
-// ✅ FETCH SELLER PRODUCTS
 export const fetchSellerProducts = createAsyncThunk<Product[]>(
   "sellerProduct/fetchSellerProducts",
   async (_, { rejectWithValue }) => {
@@ -20,7 +16,7 @@ export const fetchSellerProducts = createAsyncThunk<Product[]>(
   }
 );
 
-// ✅ CREATE PRODUCT
+
 export const createProduct = createAsyncThunk(
   "sellerProduct/createProduct",
   async ({ request }: { request: any }, { rejectWithValue }) => {
@@ -33,7 +29,7 @@ export const createProduct = createAsyncThunk(
   }
 );
 
-// ✅ UPDATE PRODUCT
+
 export const updateProduct = createAsyncThunk(
   "sellerProduct/updateProduct",
   async (
@@ -52,7 +48,7 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
-// ✅ DELETE PRODUCT
+
 export const deleteProduct = createAsyncThunk(
   "sellerProduct/deleteProduct",
   async (productId: number, { rejectWithValue }) => {
@@ -65,7 +61,7 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
-// ✅ TOGGLE STOCK
+
 export const toggleStock = createAsyncThunk(
   "sellerProduct/toggleStock",
   async (
@@ -84,9 +80,7 @@ export const toggleStock = createAsyncThunk(
   }
 );
 
-/* =========================
-   SLICE
-========================= */
+
 
 interface SellerProductState {
   products: Product[];

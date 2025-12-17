@@ -9,12 +9,6 @@ const Orders = () => {
     (state: any) => state.sellerOrders
   );
 
-// useEffect(() => {
-//   dispatch(fetchSellerOrders()).then((res) => {
-//     console.log("SELLER ORDERS RESPONSE:", res.payload);
-//   });
-// }, [dispatch]);
-
 
 useEffect(() => {
   dispatch(fetchSellerOrders()).then((res) => {

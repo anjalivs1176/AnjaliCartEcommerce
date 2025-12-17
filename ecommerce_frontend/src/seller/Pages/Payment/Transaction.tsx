@@ -35,16 +35,7 @@ const Transaction: React.FC = () => {
   const { transactions } = useAppSelector(
     (state) => state.sellerTransactions
   );
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) {
-  //     console.log("Token not available, waiting...");
-  //     return;
-  //   }
-  //   dispatch(fetchSellerTransactions());
-  // }, []);
-
+  
   useEffect(() => {
   dispatch(fetchSellerTransactions());
 }, [dispatch]);

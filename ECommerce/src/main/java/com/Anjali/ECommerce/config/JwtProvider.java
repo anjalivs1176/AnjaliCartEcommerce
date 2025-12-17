@@ -21,10 +21,10 @@ public class JwtProvider {
 
         String role = auth.getAuthorities()
                 .stream()
-                .map(GrantedAuthority::getAuthority) // ROLE_CUSTOMER
+                .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElseThrow()
-                .replace("ROLE_", ""); // CUSTOMER
+                .replace("ROLE_", "");
 
         return Jwts.builder()
                 .setIssuedAt(new Date())

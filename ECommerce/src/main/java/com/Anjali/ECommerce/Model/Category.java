@@ -12,27 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// @Entity
-// @Getter
-// @Setter
-// @AllArgsConstructor
-// @NoArgsConstructor
-// @EqualsAndHashCode
-// public class Category {
-//     @Id
-//     @GeneratedValue(strategy = GenerationType.AUTO)
-//     private Long Id;
-//     private String name;
-//     @Column(unique = true)
-//     private String categoryId;
-//     @ManyToOne
-//     private Category parentCategory;
-//     @NotNull
-//     private Integer level;
-//     //level1 example men women electronics
-//     //level2 subcategories example top wear bottom wear traditional
-//     //level 3 shirts pants kurtis etc
-// }
 @Entity
 @Getter
 @Setter

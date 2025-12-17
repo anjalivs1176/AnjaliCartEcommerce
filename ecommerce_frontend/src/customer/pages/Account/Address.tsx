@@ -9,7 +9,7 @@ const Address = () => {
   const fetchAddresses = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/address"); // 🔥 interceptor adds token
+      const res = await api.get("/address"); 
       setAddresses(res.data);
     } catch (err) {
       console.error("Failed to fetch addresses", err);

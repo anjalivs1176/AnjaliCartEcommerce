@@ -13,7 +13,6 @@ const initialState: SellerState = {
   error: null,
 };
 
-// ✅ FETCH SELLER PROFILE (NO TOKEN ARG)
 export const fetchSellerProfile = createAsyncThunk(
   "seller/fetchSellerProfile",
   async (_, { rejectWithValue }) => {
@@ -28,7 +27,7 @@ export const fetchSellerProfile = createAsyncThunk(
   }
 );
 
-// ✅ UPDATE SELLER PROFILE (NO /api/api BUG)
+
 export const updateSellerProfile = createAsyncThunk(
   "seller/updateSellerProfile",
   async (updateData: any, { rejectWithValue }) => {

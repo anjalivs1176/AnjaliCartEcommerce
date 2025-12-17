@@ -13,7 +13,7 @@ const initialState: WishlistState = {
   error: null,
 };
 
-// FETCH WISHLIST
+
 export const fetchWishlist = createAsyncThunk(
   "wishlist/fetchWishlist",
   async (_, { rejectWithValue }) => {
@@ -30,7 +30,7 @@ export const fetchWishlist = createAsyncThunk(
 );
 
 
-// ADD TO WISHLIST
+
 export const addToWishlist = createAsyncThunk(
   "wishlist/addToWishlist",
   async (productId: number, { dispatch }) => {
@@ -39,7 +39,7 @@ export const addToWishlist = createAsyncThunk(
   }
 );
 
-// REMOVE FROM WISHLIST
+
 export const removeFromWishlist = createAsyncThunk(
   "wishlist/removeFromWishlist",
   async (productId: number, { dispatch }) => {
@@ -57,7 +57,7 @@ const wishlistSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      // FETCH
+      
       .addCase(fetchWishlist.pending, (state) => {
         state.loading = true;
       })

@@ -20,13 +20,13 @@ const initialState: SellerOrderState = {
   error: null,
 };
 
-// ✅ FETCH SELLER ORDERS
+// FETCH SELLER ORDERS
 export const fetchSellerOrders = createAsyncThunk(
   "seller/fetchOrders",
   async (_, { rejectWithValue }) => {
     try {
-      // ❌ no manual token
-      // ✅ interceptor adds Authorization: Bearer <token>
+      // no manual token
+      // interceptor adds Authorization: Bearer <token>
       const res = await api.get("/seller/orders");
       return res.data;
     } catch (err) {
@@ -35,7 +35,7 @@ export const fetchSellerOrders = createAsyncThunk(
   }
 );
 
-// ✅ UPDATE ORDER STATUS
+// UPDATE ORDER STATUS
 export const updateSellerOrderStatus = createAsyncThunk(
   "seller/updateOrderStatus",
   async (

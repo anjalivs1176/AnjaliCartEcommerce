@@ -14,7 +14,7 @@ interface MenuItem {
 interface DrawerListProps {
   menu: MenuItem[];
   menu2: MenuItem[];
-  toggleDrawer?: () => void; // 👈 OPTIONAL
+  toggleDrawer?: () => void; 
 }
 
 const DrawerList = ({ menu, menu2, toggleDrawer }: DrawerListProps) => {
@@ -24,7 +24,7 @@ const DrawerList = ({ menu, menu2, toggleDrawer }: DrawerListProps) => {
 
   const handleNavigate = (path: string) => {
     navigate(path);
-    toggleDrawer?.(); // ✅ only closes if provided
+    toggleDrawer?.(); 
   };
 
   const handleLogout = () => {

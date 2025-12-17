@@ -10,13 +10,13 @@ const LoginForm = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
-  // ✅ SEND OTP
+  //SEND OTP
   const handleSendOtp = async () => {
     setErrorMsg("");
 
     try {
       await api.post("/auth/send/login-signup-otp", {
-        email: email,              // ❗ EXACT email
+        email: email,             
         role: "ROLE_CUSTOMER"
       });
 
@@ -28,14 +28,14 @@ const LoginForm = () => {
     }
   };
 
-  // ✅ LOGIN WITH OTP
+  //LOGIN WITH OTP
   const handleLogin = async () => {
     setErrorMsg("");
 
     try {
       const res = await api.post("/auth/signing", {
-        email: email,              // ❗ SAME email
-        otp: otp,                  // ❗ STRING OTP
+        email: email,              
+        otp: otp,                  
         role: "ROLE_CUSTOMER"
       });
 
