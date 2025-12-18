@@ -86,12 +86,6 @@ public class AuthServiceImpl implements AuthService {
 
         boolean userExists = userRepository.existsByEmail(email);
 
-        if (userExists) {
-            flow = "LOGIN";
-        } else {
-            flow = "SIGNUP";
-        }
-
         if ("SIGNUP".equalsIgnoreCase(flow) && userExists) {
             throw new RuntimeException("User already exists");
         }
