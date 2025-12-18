@@ -255,11 +255,7 @@ const handleAddToCart = async () => {
                     text={rev.reviewText}
                     images={rev.productImages || []}
                     canDelete={rev.user.id === currentUserId}
-                    userImage={
-                      rev.user.id === currentUserId
-                        ? authUser?.profileImage ?? null
-                        : null
-                    }
+                    userImage={null}
                     onDelete={() => dispatch(deleteReview(rev.id))}
                   />
                   <hr className="border-gray-200 mt-5" />
