@@ -23,7 +23,7 @@ const RegisterForm = () => {
 
       setOtpSent(true);
     } catch (error: any) {
-      const msg = error.response?.data?.message || "Something went wrong";
+      const msg = error.response?.data?.message || "User Already Exists..Please Login";
       setErrorMsg(msg);
     }
   };

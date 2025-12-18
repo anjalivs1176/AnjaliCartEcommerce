@@ -24,7 +24,7 @@ const LoginForm = () => {
       setOtpSent(true);
     } catch (error: any) {
       const msg =
-        error.response?.data?.message || "Failed to send OTP";
+        error.response?.data?.message || "User doesnt exist..Please Register";
       setErrorMsg(msg);
     }
   };
