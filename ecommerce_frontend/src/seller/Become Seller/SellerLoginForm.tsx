@@ -9,7 +9,6 @@ import { fetchSellerProfile } from "../../state/seller/sellerProfileSlice";
 const SellerLoginForm = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { message, error } = useAppSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
 
   const formik = useFormik({
@@ -27,12 +26,15 @@ const SellerLoginForm = () => {
     dispatch(clearAuthError());
   };
 
- useEffect(() => {
-  if (message === "Login successful") {
-    dispatch(fetchSellerProfile()); 
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    dispatch(fetchSellerProfile());
     navigate("/seller");
   }
-}, [message, navigate, dispatch]);
+}, [navigate, dispatch]);
+
 
 
   return (
@@ -76,11 +78,6 @@ const SellerLoginForm = () => {
           }}
         />
 
-        {error && (
-          <p className="text-red-500 text-sm text-center font-medium">
-            {error}
-          </p>
-        )}
         <Button
           type="submit"
           fullWidth
