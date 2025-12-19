@@ -67,14 +67,24 @@ const handleCreateAccount = async (values: any) => {
     const { data } = await api.post("/seller", values);
 
     console.log("SELLER CREATED:", data);
+
+    // clear any existing seller session
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+
     alert(
-      "Seller account created! Check your email for the verification link (it contains the OTP)."
+      "Seller account created successfully! Please verify OTP and login again."
     );
+
+    navigate("/become-seller");
+
   } catch (error: any) {
     console.error("Error creating seller:", error);
     alert("Signup failed");
   }
 };
+
 
 
 

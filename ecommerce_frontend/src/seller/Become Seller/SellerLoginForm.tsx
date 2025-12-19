@@ -10,7 +10,7 @@ const SellerLoginForm = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-
+const { token } = useAppSelector((state) => state.auth);
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -26,14 +26,15 @@ const SellerLoginForm = () => {
     dispatch(clearAuthError());
   };
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
 
+
+useEffect(() => {
   if (token) {
     dispatch(fetchSellerProfile());
     navigate("/seller");
   }
-}, [navigate, dispatch]);
+}, [token, dispatch, navigate]);
+
 
 
 
