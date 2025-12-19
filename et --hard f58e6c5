@@ -1,0 +1,134 @@
+[33mfd26e1a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: commit: Fix seller login redirect by navigating on auth token state update
+[33m2b69b1c[m HEAD@{1}: reset: moving to HEAD@{3}
+[33mf58e6c5[m HEAD@{2}: pull --rebase origin main (finish): returning to refs/heads/main
+[33mf58e6c5[m HEAD@{3}: pull --rebase origin main (pick): Fix seller login redirect by navigating based on auth token instead of message
+[33me3b0ccb[m HEAD@{4}: pull --rebase origin main (start): checkout e3b0ccb94058bcd72643afc1ff0866123fda9605
+[33m2b69b1c[m HEAD@{5}: commit: Fix seller login redirect by navigating based on auth token instead of message
+[33mb4c0026[m HEAD@{6}: commit: resolved login flow
+[33m1e807d3[m HEAD@{7}: commit: resolved login flow
+[33mb73e547[m HEAD@{8}: commit: fix: resolve TypeScript profileImage build error
+[33mcfe6f16[m HEAD@{9}: commit: replaced clearSEllerErroe with clearAuthError in sellerloginform
+[33m1020cab[m HEAD@{10}: commit: updated authSlice
+[33mcdf912d[m HEAD@{11}: commit: finalize e-commerce application and clean up codebase
+[33m07354be[m HEAD@{12}: commit: finalize e-commerce application and clean up codebase
+[33m1e7430f[m HEAD@{13}: commit: finalize e-commerce application and clean up codebase
+[33m5420cb8[m HEAD@{14}: commit: final commit2
+[33m8af3dfc[m HEAD@{15}: commit: final commit
+[33m63ec667[m HEAD@{16}: reset: moving to 63ec667
+[33m9762868[m HEAD@{17}: commit: fixed token validator
+[33m36256a6[m HEAD@{18}: commit: fixed verificationcode repo
+[33m0ce548e[m HEAD@{19}: commit: fixed register
+[33me9c03e7[m HEAD@{20}: commit: fixed register
+[33m0304158[m HEAD@{21}: commit: fixed register and login
+[33m63ec667[m HEAD@{22}: reset: moving to 63ec667
+[33m373ab30[m HEAD@{23}: commit: fixed jwt token validator
+[33ma4fc968[m HEAD@{24}: commit: fixed register and login flow
+[33mffcdd5f[m HEAD@{25}: commit: fixed register and login flow
+[33mce3dbac[m HEAD@{26}: commit: fixed register and login flow
+[33m63ec667[m HEAD@{27}: commit: updated appconfig
+[33mc26fe69[m HEAD@{28}: commit: Fix auth flows, OTP validation, user profile data, and seller signup issues1
+[33mc45dba9[m HEAD@{29}: commit: Fix auth flows, OTP validation, user profile data, and seller signup issues
+[33md18f923[m HEAD@{30}: commit: Fix auth flows, OTP validation, user profile data, and seller signup issues
+[33m42859e9[m HEAD@{31}: commit: updated edit product
+[33mde961a8[m HEAD@{32}: commit: fixed edit product
+[33m9772417[m HEAD@{33}: commit: fixed seller url in EdittProduct
+[33m1cf51a4[m HEAD@{34}: commit: fixed api
+[33mda0854b[m HEAD@{35}: commit: fixed api config
+[33m13b758e[m HEAD@{36}: commit: fixed api.ts and loginseller thunk
+[33maf45bb9[m HEAD@{37}: commit: fixed api.ts and loginseller thunk
+[33m4b73bb6[m HEAD@{38}: commit: updated seller login - role1
+[33m078c5f6[m HEAD@{39}: commit: updated seller login - role
+[33mb4b93e9[m HEAD@{40}: commit: updated seller java - role
+[33m76875cc[m HEAD@{41}: commit: updated app config with seller endpoints
+[33m114f056[m HEAD@{42}: commit: Customer flow completed: profile, orders, auth fixes
+[33m8099998[m HEAD@{43}: commit: user controller to get profile1
+[33md7fd3b6[m HEAD@{44}: commit: user controller to get profile
+[33m560e895[m HEAD@{45}: commit: fixed paymentsuccesspage
+[33m8306fe3[m HEAD@{46}: commit: fixed user controller
+[33m2e4e55a[m HEAD@{47}: commit: replaced order controller
+[33m3baecc7[m HEAD@{48}: commit: fixed razorpay payment link
+[33m7c4b0c2[m HEAD@{49}: commit: debugging orderservice
+[33ma5cccd1[m HEAD@{50}: commit: Fix order creation transaction
+[33m99c230f[m HEAD@{51}: commit: Fix CartItem field naming
+[33m85476db[m HEAD@{52}: commit: debugging2
+[33m7efdcfc[m HEAD@{53}: commit: debugging
+[33m1daa97b[m HEAD@{54}: commit: fixed cartSlice
+[33m08cc4c4[m HEAD@{55}: commit: fixed api.ts
+[33mdc23e8c[m HEAD@{56}: commit: fixed app config - add to cart5
+[33mdc674de[m HEAD@{57}: commit: fixed app config - add to cart4
+[33m0beefb6[m HEAD@{58}: commit: fixed app config - add to cart3
+[33mfb98be9[m HEAD@{59}: commit: fixed app config - add to cart2
+[33m38c25cb[m HEAD@{60}: commit: fixed app config - add to cart
+[33m9269e8c[m HEAD@{61}: commit: fixed product details page to have correct size
+[33md734940[m HEAD@{62}: reset: moving to d734940
+[33m51f2b5b[m HEAD@{63}: commit: fixed orders
+[33md734940[m HEAD@{64}: commit: fixed jwt key
+[33ma88e762[m HEAD@{65}: commit: fix frontend 70
+[33mf14bcda[m HEAD@{66}: commit: fix frontend 70
+[33m2e11f56[m HEAD@{67}: commit: fix frontend 70
+[33mfc71170[m HEAD@{68}: commit: fix frontend 79
+[33m00c1d3f[m HEAD@{69}: commit: fix frontend 78
+[33m7de9d20[m HEAD@{70}: commit: fix frontend 7
+[33m53a409d[m HEAD@{71}: commit: fix frontend
+[33mddc44b1[m HEAD@{72}: commit: fixed review form
+[33m63a186c[m HEAD@{73}: commit: fixed frontend4
+[33m958ad7e[m HEAD@{74}: commit: fixed frontend
+[33mde0562b[m HEAD@{75}: commit: fixed api.ts1
+[33m9b6bc99[m HEAD@{76}: commit: fixed api.ts
+[33m944eeb5[m HEAD@{77}: commit: fixed config files
+[33meb0205e[m HEAD@{78}: commit: Fix slices
+[33mb659da3[m HEAD@{79}: commit: Fix public APIs 403 (path + JWT + CORS)
+[33m3fd2266[m HEAD@{80}: commit: Fix public APIs 403 (path + JWT + CORS)
+[33m23ee75f[m HEAD@{81}: commit: fixed app config
+[33mc295c03[m HEAD@{82}: commit: Fix user entity
+[33m3b654b4[m HEAD@{83}: commit: Fix security matcher order
+[33m6bf9b36[m HEAD@{84}: reset: moving to 6bf9b36
+[33m601ad4f[m HEAD@{85}: commit: fixed322
+[33m5198304[m HEAD@{86}: commit: fixed3
+[33mcdb6b97[m HEAD@{87}: commit: fixed
+[33md625de6[m HEAD@{88}: commit: fixed app config filee:
+[33m17b1c3a[m HEAD@{89}: commit: finalllyy
+[33m1b90e53[m HEAD@{90}: commit: finalllyy
+[33m6bf9b36[m HEAD@{91}: commit: api
+[33m3e2a857[m HEAD@{92}: commit: api
+[33m359e95d[m HEAD@{93}: commit: api
+[33m951c530[m HEAD@{94}: commit: finalllyy
+[33mecd6167[m HEAD@{95}: commit: finalllyy
+[33m0799239[m HEAD@{96}: commit: final fix
+[33m043943b[m HEAD@{97}: commit: final fix
+[33m3167fa7[m HEAD@{98}: commit: final fix app config90
+[33me168be5[m HEAD@{99}: commit: final fix app config
+[33m29194ec[m HEAD@{100}: commit: final fix app config
+[33mcc7c0ac[m HEAD@{101}: commit: final fix app config
+[33m1be35c6[m HEAD@{102}: commit: api.ts
+[33m39fb930[m HEAD@{103}: commit: fixed jwt
+[33m372fea1[m HEAD@{104}: commit: fixed cart wishlist200
+[33mcbff705[m HEAD@{105}: commit: fixed cart wishlist9
+[33m4f9d4d0[m HEAD@{106}: commit: fixed cart wishlist20
+[33m457d63a[m HEAD@{107}: commit: fixed cart wishlist2
+[33m30ed8ce[m HEAD@{108}: commit: fixed cart wishlist
+[33mff6f52b[m HEAD@{109}: commit: Fix cart & wishlist auth via SecurityContext
+[33m145f8cf[m HEAD@{110}: commit: app config
+[33m40e54c6[m HEAD@{111}: commit: Fix api.ts
+[33m0b32a28[m HEAD@{112}: commit: Fix JWT filter & public APIs
+[33m3b86eb4[m HEAD@{113}: commit: Fix stock toggle TS error
+[33m0f63645[m HEAD@{114}: commit: fixed frontend24
+[33m598c9bc[m HEAD@{115}: commit: fixed frontend2
+[33m217a78a[m HEAD@{116}: commit: fixed frontend
+[33m51ced16[m HEAD@{117}: commit: fixed config6
+[33m994e10f[m HEAD@{118}: commit: fixed config5
+[33m225375a[m HEAD@{119}: commit: fixed config4
+[33m3c4bf61[m HEAD@{120}: commit: fixed config
+[33m0a6574a[m HEAD@{121}: commit: updated seller controlelr with frontend url1
+[33m2185aae[m HEAD@{122}: commit: updated seller controlelr with frontend url
+[33m642953d[m HEAD@{123}: commit: updated seller controlelr
+[33mc7c2cf2[m HEAD@{124}: commit: updated slice filesq
+[33ma63abaf[m HEAD@{125}: commit: fixed app config
+[33mea53aa7[m HEAD@{126}: commit: fixed seller profile1
+[33m16f6205[m HEAD@{127}: commit: updated slice files
+[33mc02b2a5[m HEAD@{128}: commit: fixed seller profile2
+[33m30c4aeb[m HEAD@{129}: commit: fixed seller profile
+[33m1eb2809[m HEAD@{130}: commit: updated slice files to import correct api
+[33m5c2adc1[m HEAD@{131}: commit: updated appconfig file
+[33m48200d9[m HEAD@{132}: commit: fixed token validator file
+[33m70717d
